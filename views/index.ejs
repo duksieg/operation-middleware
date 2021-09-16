@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>นารายณ์ปราบศาสตรา</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Nav Section-->
+    <nav class="navbar navbar-expand-lg navbar navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">SECTION</a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                </ul>
+            </div>
+        </div>
+    </nav><br><br>
+
+    <div class="container">
+        <!-- Header Section-->
+        <div class="card">
+            <div class="card-header">
+                ข้อมูลจุดเข้าค้น
+            </div>
+            <div class="card-body">
+                <form action="/saverecord" method="POST">
+                    <div class="row">
+                        <div class="col-5">
+                            <div class="form-group">
+                                <label for="formGroupExampleInput">รหัสจุดค้น</label>
+                                <input type="text" class="form-control" id="placeid" name="placeid"
+                                    placeholder="รหัสจุดค้น" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-5">
+                            <label for="formGroupStatusInput">สถานะเข้าค้น</label>
+                            <select class="form-select mt-2" name="status"id="status" aria-label="select status"
+                                onchange="showGuns(this)" required>
+                                <option disabled selected value="">กรุณาเลือกสถานะการบันทึก</option>
+                                <option value="before">ก่อนเข้าค้น</option>
+                                <option value="current">กำลังค้น</option>
+                                <option value="after">หลังเข้าค้น</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                กรุณาเลือกสถานะการเข้าค้น
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row ">
+                        <div id="hidden_divOwner" style="display:block">
+                            <div class="col-5">
+                                <div class="form-group">
+                                    <label for="formGroupHeadername">ชื่อหัวหน้าจุด</label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                        placeholder="ชื่อหัวหน้าจุด ยศ ชื่อ-นามสกุล">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="formGroupHeadertel">เบอร์โทรศัพท์ติดต่อ</label>
+                                    <input type="text" class="form-control" id="tel" name="tel"
+                                        placeholder="ใส่เบอร์เต็ม 0999999999">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+
+                        <div class="form-group">
+                            <label for="reportText">รายงานสถานะการค้น</label>
+                            <textarea class="form-control" rows="10" name="reporttext" id="reporttext"></textarea>
+                        </div>
+                        <label for="formFileMultiple" class="form-label">อัพโหลดรูปภาพ 3 รูป</label>
+                        <input class="form-control" type="file" id="images" multiple />
+
+                    </div>
+            </div>
+        </div>
+        <br>
+
+        <!-- guns record for after status Section-->
+        <div class="container my-4" id="hidden_div" style="display:none;">
+            <div class="card">
+                <div class="card-header">
+                    บัญชีตรวจยึดอาวุธปืน
+                </div>
+
+                <div class="card-body">
+                    <form action="" method="POST">
+                        <div class="form-group row">
+                            <label for="inputNormal" class="col-sm-2 col-form-label">อาวุธปืนทั่วไป</label>
+                            <div class="col-sm-3">
+                              <input type="text" class="form-control" id="normalguns" placeholder="ตัวอย่าง 10">
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label for="inputNormal" class="col-sm-2 col-form-label">อาวุธปืนสงคราม</label>
+                            <div class="col-sm-3">
+                              <input type="text" class="form-control" id="warguns">
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label for="inputNormal" class="col-sm-2 col-form-label">อาวุธปืนไทยประดิษฐ์</label>
+                            <div class="col-sm-3">
+                              <input type="text" class="form-control" id="thaicraftguns">
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label for="inputNormal" class="col-sm-2 col-form-label">เครื่องยุทธภัณฑ์</label>
+                            <div class="col-sm-3">
+                              <input type="text" class="form-control" id="ammunition">
+                            </div>
+                          </div>
+                </div>
+
+            </div>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary btn-sm ">Submit</button>
+        </form>
+    </div>
+    </div>
+
+</body>
+
+</html>
+<script type="text/javascript">
+    function showGuns(select) {
+        if (select.value == "after") {
+            document.getElementById('hidden_div').style.display = "block";
+        } else {
+            document.getElementById('hidden_div').style.display = "none";
+        }
+
+        if (select.value == "after" || select.value == "current") {
+            document.getElementById('hidden_divOwner').style.display = "none";
+        } else {
+            document.getElementById('hidden_divOwner').style.display = "block";
+        }
+    }
+</script>
