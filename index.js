@@ -1,7 +1,9 @@
 const express = require('express')
 const app = express()
 var util = require('./ggsheet')
+const cor = require('cors')
 app.set('view engine', 'ejs');
+app.use(cor())
 app.use(express.urlencoded({ extended: true }));
 
 
@@ -45,4 +47,4 @@ app.get("/pointsdata", async (req, res) => {
     res.send(jsonObj)
 })
 
-app.listen(process.env.PORT, (req, res) => console.log('running on 4000'))
+app.listen(process.env.PORT ? process.env.PORT: 4000 , (req, res) => console.log('running on 4000'))
