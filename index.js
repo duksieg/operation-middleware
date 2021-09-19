@@ -1,31 +1,33 @@
 const express = require('express')
 const app = express()
 var util = require('./ggsheet')
+const fileupload = require('express-fileupload')
 const cor = require('cors')
 app.set('view engine', 'ejs');
 app.use(cor())
 app.use(express.urlencoded({ extended: true }));
-
-
-
-
+app.use(fileupload({
+    useTempFiles : true,
+    tempFileDir : '/tmp/'
+}));
 app.get("/", async (req, res) => {
         res.render('index')
 })
 
 
-
-app.post("/saverecord", async (req, res) => {
-    if(util.updateRow(req.body)){
-        res.sendStatus(200);
+app.post("/saverecord",async (req, res) => {
+    if(await util.updateRow(req.body,req.files.filestore)){
+     
+        res.render('success')
+       
     }else{
-        res.sendStatus(500);
-    }
+        //wait for popup false
+    res.sendStatus(200)
+     }
 })
 
 app.get("/info", async (req, res) => {
    let total =  await util.gettotalData()
-   
     res.send(total)
 })
 
@@ -39,12 +41,11 @@ app.get("/detail",async (req,res)=>{
 })
 
 app.get("/pointsdata", async (req, res) => {
-   
-
     const jsonparsing = '{"data":[ {"pointName":"นายดำ นามสมมุติ","pointLatlng":"100.54231,13.22214"},{"pointName":"นายดำ รสจันะนั","pointLatlng":"100.54331,13.22214"}]}'
     const jsonObj = JSON.parse(jsonparsing)
 
     res.send(jsonObj)
 })
+
 
 app.listen(process.env.PORT ? process.env.PORT: 4000 , (req, res) => console.log('running on 4000'))
