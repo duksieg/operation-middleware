@@ -75,4 +75,4 @@ function initialload(){
      return mapsKey
 }
 
-app.listen(process.env.PORT ? process.env.PORT: 4000 , (req, res) => console.log('running on 4000'))
+app.listen(process.env.PORT ? 4000:process.env.PORT , (req, res) => console.log('running on 4000'))
