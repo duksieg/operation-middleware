@@ -7,7 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>นารายณ์ปราบศาสตรา</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -32,18 +34,9 @@
                 <form action="/saverecord" method="POST" encType="multipart/form-data" ref='uploadForm'>
                     <div class="row">
                         <div class="col-5">
-                            <div class="form-group">
-                                <label for="formGroupExampleInput">รหัสจุดค้น</label>
-                                <input type="text" class="form-control" id="placeid" name="placeid"
-                                    placeholder="รหัสจุดค้น" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-5">
                             <label for="formGroupStatusInput">สถานะเข้าค้น</label>
                             <select class="form-select mt-2" name="status" id="status" aria-label="select status"
-                                onchange="showGuns(this)" required>
+                                onchange="showFound(this)" required>
                                 <option disabled selected value="">กรุณาเลือกสถานะการบันทึก</option>
                                 <option value="before">ก่อนเข้าค้น</option>
                                 <option value="current">กำลังค้น</option>
@@ -55,33 +48,62 @@
                         </div>
 
                     </div>
+                    <div class="row">
+                        <div class="col-5">
+                            <div class="form-group">
+                                <label for="formGroupExampleInput">รหัสจุดค้น</label>
+                                <input list="point" class="form-control" id="placeid" name="placeid"
+                                    placeholder="รหัสจุดค้น" required>
+                                <datalist id="point">
+                                    <% for(i=0;i<point.length;i++) {%>
+                                        <option value="<%=point[i].trim()%>">
+                                            <%}%>
+                                </datalist>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row ">
-                        <div id="hidden_divOwner" style="display:block">
+                        <div>
                             <div class="col-5">
                                 <div class="form-group">
                                     <label for="formGroupHeadername">ชื่อหัวหน้าจุด</label>
-                                    <input type="text" class="form-control" id="name" name="name"
-                                        placeholder="ชื่อหัวหน้าจุด ยศ ชื่อ-นามสกุล">
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="form-group">
-                                    <label for="formGroupHeadertel">เบอร์โทรศัพท์ติดต่อ</label>
-                                    <input type="text" class="form-control" id="tel" name="tel"
-                                        placeholder="ใส่เบอร์เต็ม 0999999999">
+                                    <input list="agent" class="form-control" id="name" name="name"
+                                        placeholder="ชื่อหัวหน้าจุด ยศ ชื่อ-นามสกุล" required>
+                                    <datalist id="agent">
+                                        <% for(i=0;i<agent.length;i++) {%>
+                                            <option value="<%=agent[i].trim()%>">
+                                                <%}%>
+                                    </datalist>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <!-- <div class="col">
+                                <div class="form-group">
+                                    <label for="formGroupHeadertel">เบอร์โทรศัพท์ติดต่อ</label>
+                                    <input type="text" class="form-control" id="tel" name="tel"
+                                        placeholder="ใส่เบอร์เต็ม 0999999999" required>
+                                </div>
+                            </div> -->
                     <div>
-
-                        <div class="form-group">
-                            <label for="reportText">รายงานสถานะการค้น</label>
-                            <textarea class="form-control" rows="10" name="reporttext" id="reporttext"></textarea>
+                        <div class="col-5" id="hidden_divFound" style="display:none;">
+                            <label for="formGroupStatusInput">พบเจอสิ่งผิดกฎหมายหรือไม่</label>
+                            <select class="form-select mt-2" name="isfound" id="isfound" aria-label="select found"
+                                onchange="showGuns(this)">
+                                <option disabled selected value="">กรุณาเลือกสถานะการบันทึก</option>
+                                <option value="found">พบ</option>
+                                <option value="notfound">ไม่พบ</option>
+                            </select>
                         </div>
-                        <label for="formFileMultiple" class="form-label">อัพโหลดรูปภาพ 3 รูป</label>
-                        <input class="form-control" type="file" name="filestore" id="images" multiple required />
 
+                        <!-- <div class="form-group">
+                            <label for="reportText">รายงานสถานะการค้น</label>
+                            <textarea class="form-control" rows="10" name="reporttext" id="reporttext" required></textarea>
+                        </div> -->
+                        <label for="formFileMultiple" class="form-label">อัพโหลดรูปภาพหรือไฟล์วิดีโอ</label>
+                        <input class="form-control" type="file" name="filestore" accept="image/*" id="images" multiple
+                            required />
                     </div>
             </div>
         </div>
@@ -95,30 +117,44 @@
                 </div>
 
                 <div class="card-body">
-                    <form action="" method="POST">
                         <div class="form-group row">
-                            <label for="inputNormal" class="col-sm-2 col-form-label">อาวุธปืนทั่วไป</label>
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" name="normalguns" id="normalguns"
-                                    placeholder="ตัวอย่าง 10">
+                            <label for="inputNormal" class="col-sm-4 col-form-label">จำนวนผู้ถูกจับกุม(ราย)</label>
+                            <div class="col-sm-4">
+                                <input type="number" class="form-control" name="criminal" id="criminal"
+                                    placeholder="ตัวอย่าง 10 ใส่เฉพาะตัวเลขเท่านั้น">
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="inputNormal" class="col-sm-2 col-form-label">อาวุธปืนสงคราม</label>
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" name="warguns" id="warguns">
+                            <label for="inputNormal" class="col-sm-4 col-form-label">อาวุธปืนทั่วไป(กระบอก)</label>
+                            <div class="col-sm-4">
+                                <input type="number" class="form-control" name="normalguns" id="normalguns"
+                                    placeholder="ตัวอย่าง 10 ใส่เฉพาะตัวเลขเท่านั้น">
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="inputNormal" class="col-sm-2 col-form-label">อาวุธปืนไทยประดิษฐ์</label>
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" name="thaicraftguns" id="thaicraftguns">
+                            <label for="inputNormal" class="col-sm-4 col-form-label">อาวุธปืนสงคราม(กระบอก)</label>
+                            <div class="col-sm-4">
+                                <input type="number" class="form-control" name="warguns" id="warguns">
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="inputNormal" class="col-sm-2 col-form-label">เครื่องยุทธภัณฑ์</label>
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" name="ammunition" id="ammunition">
+                            <label for="inputNormal" class="col-sm-4 col-form-label">อาวุธปืนไทยประดิษฐ์(กระบอก)</label>
+                            <div class="col-sm-4">
+                                <input type="number" class="form-control" name="thaicraftguns" id="thaicraftguns">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="inputNormal" class="col-sm-4 col-form-label">เครื่องยุทธภัณฑ์(ชิ้น)</label>
+                            <div class="col-sm-4">
+                                <input type="number" class="form-control" name="ammunition" id="ammunition">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="inputNormal" class="col-sm-4 col-form-label">อื่นๆ
+                                เห็นสมควรให้ผู้บังคับบัญชาเข้าร่วม</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="etc" id="etc"
+                                    placeholder="เช่นยาบ้า 1000000 เม็ด">
                             </div>
                         </div>
                 </div>
@@ -126,7 +162,7 @@
             </div>
         </div>
         <br>
-        <button  type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
             data-bs-target="#checkmodal">Submit</button>
         <!-- Modal -->
         <div class="modal fade" id="checkmodal" tabindex="-1" aria-labelledby="checkmodalLabel" aria-hidden="true">
@@ -136,7 +172,8 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <h5 class="modal-title text-center" id="checkmodalLabel">กรุณาตรวจสอบข้อมูลอีกครั้งก่อนดำเนินการ</h5>
+                        <h5 class="modal-title text-center" id="checkmodalLabel">กรุณาตรวจสอบข้อมูลอีกครั้งก่อนดำเนินการ
+                        </h5>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -153,17 +190,19 @@
 
 </html>
 <script type="text/javascript">
-    function showGuns(select) {
-        if (select.value == "after") {
+    function showFound(status) {
+        if (status.value == "after") {
+            document.getElementById('hidden_divFound').style.display = "block";
+        } else {
+            document.getElementById('hidden_divFound').style.display = "none";
+        }
+    }
+
+    function showGuns(isfound) {
+        if (isfound.value == "found") {
             document.getElementById('hidden_div').style.display = "block";
         } else {
             document.getElementById('hidden_div').style.display = "none";
-        }
-
-        if (select.value == "after" || select.value == "current") {
-            document.getElementById('hidden_divOwner').style.display = "none";
-        } else {
-            document.getElementById('hidden_divOwner').style.display = "block";
         }
     }
 </script>

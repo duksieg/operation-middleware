@@ -2,7 +2,6 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { google } = require('googleapis');
 const fs = require('fs');
-const { readdir } = require('fs/promises')
 
 const sheetID = "1FCJV5Flm1iAHVdSYfM7EPXtN_jdgO1tVPkUkGu-z568"
 const doc = new GoogleSpreadsheet(sheetID);
@@ -34,9 +33,31 @@ module.exports = {
         return alldata
     },
 
+    getimages:async function getimages(parentid,defaultid){
+        if(parentid==null || parentid==undefined) parentid=defaultid 
+        let result
+        try {
+            let resp = await drive.files.list({
+                q: `'${parentid}' in parents` ,
+                spaces: 'drive'
+            })
+            // resp.data.files.forEach(element => {
+            //     console.log(element)
+            // });
+            result = resp.data.files
+           return result
+       }
+       catch (err) {
+           console.error(err)
+           return false
+       }
+       
+    },
+
     // get all datarow 
     getRowdata: async function getRowdata() {
         let arry = []
+        try{
         let allrow = await this.loadSheet()
         for (let index = 0; index < allrow.length; index++) {
             let jobj = {
@@ -49,20 +70,23 @@ module.exports = {
                 contactno: allrow[index].contactNo,
                 status: allrow[index].status,
                 beforereport: allrow[index].beforeReport,
-                beforefolder: allrow[index].beforefolder,
+                folderid: allrow[index].folderID,
                 current: allrow[index].currentReport,
-                currentfolder: allrow[index].currentFolder,
                 afterreport: allrow[index].afterReport,
-                afterfolder: allrow[index].afterfolder,
                 normalgun: allrow[index].normalGuns,
                 wargun: allrow[index].warGuns,
                 thaicraftgun: allrow[index].thaicraftGuns,
                 ammunition: allrow[index].ammunition,
-                totalfound: allrow[index].totalFound
+                totalfound: allrow[index].totalFound,
+                criminal:allrow[index].criminal,
+                etc:allrow[index].etc
             }
             arry.push(jobj)
         }
         return arry
+    }catch(err){
+        console.error(err)
+    }
     },
 
     createFolder: async function createFolder(foldername) {
@@ -78,6 +102,7 @@ module.exports = {
             fields: 'id'
         })
         folderId = res.data.id
+        this.updateFolderPermission(folderId)
         return folderId
 
        }catch(err){
@@ -85,6 +110,31 @@ module.exports = {
            return false
        }
        
+    },
+
+    updateFolderPermission : async function updateFolderPermission(folderId){
+        
+            try {
+                const fileId = folderId;
+                //change file permisions to public.
+                await drive.permissions.create({
+                    fileId: fileId,
+                    requestBody: {
+                    role: 'reader',
+                    type: 'anyone',
+                    },
+                });
+        
+                //obtain the webview and webcontent links
+                const result = await drive.files.get({
+                    fileId: fileId,
+                    fields: 'webViewLink, webContentLink',
+                });
+              console.log(result.data);
+            } catch (error) {
+              console.log(error.message);
+            }
+          
     },
 
     createimage: async function createImage(filename, filepath, mimetype,parentid) {
@@ -127,6 +177,7 @@ module.exports = {
     },
 
         updateRow: async function updateRow(record, files) {
+            let timestamp = new Date().toLocaleDateString
             let result
             //placeid from post
             let placeid = record.placeid
@@ -145,23 +196,20 @@ module.exports = {
                 let folderId
                 switch (status) {
                     case 'before':
+                        folderId = rows[rowIndex].folderID
                         rows[rowIndex].status = record.status
                         rows[rowIndex].headName = record.name
                         rows[rowIndex].contactNo = record.tel
                         rows[rowIndex].beforeReport = record.reporttext
-                        folderId =await this.createFolder(placeid)
-                        if(folderId){
-                            this.sendimages(placeid,status,files,folderId)
-                        rows[rowIndex].folderID = folderId
-                        }else{
-                            console.error('something wrong')
-                        }
-                        
+                        rows[rowIndex].timestamp = timestamp
+                        //folderId =await this.createFolder(placeid)
+                        this.sendimages(placeid,status,files,folderId)
                         break;
                     case 'current':
                         folderId = rows[rowIndex].folderID
                         rows[rowIndex].status = record.status
                         rows[rowIndex].currentReport = record.reporttext
+                        rows[rowIndex].timestamp = timestamp
                         this.sendimages(placeid,status,files,folderId)
                         break;
 
@@ -173,6 +221,9 @@ module.exports = {
                         rows[rowIndex].warGuns = record.warguns
                         rows[rowIndex].thaicraftGuns = record.thaicraftguns
                         rows[rowIndex].ammunition = record.ammunition
+                        rows[rowIndex].criminal = record.criminal
+                        rows[rowIndex].etc  = record.etc
+                        rows[rowIndex].timestamp = timestamp
                         this.sendimages(placeid,status,files,folderId)
                         break;
 
