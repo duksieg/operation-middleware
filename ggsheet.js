@@ -3,7 +3,7 @@ const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { google } = require('googleapis');
 const fs = require('fs');
 
-const sheetID = "1FCJV5Flm1iAHVdSYfM7EPXtN_jdgO1tVPkUkGu-z568"
+const sheetID = "189Fl1bnbuZNUESOu6juk0YyF6ZtE3y0APK2ullhAwj4"
 const doc = new GoogleSpreadsheet(sheetID);
 var creds = require('./key.json');
 
@@ -24,7 +24,7 @@ module.exports = {
         try {
             await doc.useServiceAccountAuth(creds)
             await doc.loadInfo()
-            let sheet = await doc.sheetsByTitle['ClassC']
+            let sheet = await doc.sheetsByTitle['narai']
             alldata = await sheet.getRows()
 
         } catch (err) {
@@ -61,7 +61,7 @@ module.exports = {
             let allrow = await this.loadSheet()
             for (let index = 0; index < allrow.length; index++) {
                 let jobj = {
-                    pointno: allrow[index].no,
+                    pointno: allrow[index].IDdetect,
                     idcard: allrow[index].idcard,
                     coderank: allrow[index].code,
                     fullname: allrow[index].fullname,
@@ -188,11 +188,11 @@ module.exports = {
         let rows = await this.loadSheet()
         let rowIndex
         for (let index = 0; index < rows.length; index++) {
-            if (rows[index].no == placeid) {
+            if (rows[index].IDdetect == placeid) {
                 rowIndex = index
             }
         }
-        if ((headname == rows[rowIndex].headName) && (placeid == rows[rowIndex].no )) {
+        if ((headname == rows[rowIndex].headName) && (placeid == rows[rowIndex].IDdetect )) {
             this.sendimages(status, files)
             try {
                 let folderId
