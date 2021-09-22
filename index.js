@@ -20,11 +20,13 @@ app.get("/", async (req, res) => {
 
 
 app.post("/saverecord",async (req, res) => {
-    if(await util.updateRow(req.body,req.files.filestore)){
+    let checkstatus = await util.updateRow(req.body,req.files.filestore) 
+    if(checkstatus == true){
         res.render('success')
-    }else{
-        //wait for popup false
-    res.sendStatus(200)
+    }else if( checkstatus == 'notmatch'){
+        res.render('notmatch',{reason:'รหัสจุดค้น และ ชื่อหัวหน้าชุด ไม่ตรงกับในระบบ'})
+     }else{
+        res.render('notmatch',{reason:checkstatus})
      }
 })
 
@@ -75,4 +77,4 @@ function initialload(){
      return mapsKey
 }
 let port = process.env.PORT 
-app.listen( process.env.PORT, (req, res) => console.log('app is running'))
+app.listen( 4000, (req, res) => console.log('app is running'))

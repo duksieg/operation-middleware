@@ -33,114 +33,114 @@ module.exports = {
         return alldata
     },
 
-    getimages:async function getimages(parentid,defaultid){
-        if(parentid==null || parentid==undefined) parentid=defaultid 
+    getimages: async function getimages(parentid, defaultid) {
+        if (parentid == null || parentid == undefined) parentid = defaultid
         let result
         try {
             let resp = await drive.files.list({
-                q: `'${parentid}' in parents` ,
+                q: `'${parentid}' in parents`,
                 spaces: 'drive'
             })
             // resp.data.files.forEach(element => {
             //     console.log(element)
             // });
             result = resp.data.files
-           return result
-       }
-       catch (err) {
-           console.error(err)
-           return false
-       }
-       
+            return result
+        }
+        catch (err) {
+            console.error(err)
+            return false
+        }
+
     },
 
     // get all datarow 
     getRowdata: async function getRowdata() {
         let arry = []
-        try{
-        let allrow = await this.loadSheet()
-        for (let index = 0; index < allrow.length; index++) {
-            let jobj = {
-                pointno: allrow[index].no,
-                idcard: allrow[index].idcard,
-                coderank: allrow[index].code,
-                fullname: allrow[index].fullname,
-                pointlatlng: allrow[index].LatLng,
-                headname: allrow[index].headName,
-                contactno: allrow[index].contactNo,
-                status: allrow[index].status,
-                beforereport: allrow[index].beforeReport,
-                folderid: allrow[index].folderID,
-                current: allrow[index].currentReport,
-                afterreport: allrow[index].afterReport,
-                normalgun: allrow[index].normalGuns,
-                wargun: allrow[index].warGuns,
-                thaicraftgun: allrow[index].thaicraftGuns,
-                ammunition: allrow[index].ammunition,
-                totalfound: allrow[index].totalFound,
-                criminal:allrow[index].criminal,
-                etc:allrow[index].etc,
-                dv:allrow[index].dv
+        try {
+            let allrow = await this.loadSheet()
+            for (let index = 0; index < allrow.length; index++) {
+                let jobj = {
+                    pointno: allrow[index].no,
+                    idcard: allrow[index].idcard,
+                    coderank: allrow[index].code,
+                    fullname: allrow[index].fullname,
+                    pointlatlng: allrow[index].LatLng,
+                    headname: allrow[index].headName,
+                    contactno: allrow[index].contactNo,
+                    status: allrow[index].status,
+                    beforereport: allrow[index].beforeReport,
+                    folderid: allrow[index].folderID,
+                    current: allrow[index].currentReport,
+                    afterreport: allrow[index].afterReport,
+                    normalgun: allrow[index].normalGuns,
+                    wargun: allrow[index].warGuns,
+                    thaicraftgun: allrow[index].thaicraftGuns,
+                    ammunition: allrow[index].ammunition,
+                    totalfound: allrow[index].totalFound,
+                    criminal: allrow[index].criminal,
+                    etc: allrow[index].etc,
+                    dv: allrow[index].dv
+                }
+                arry.push(jobj)
             }
-            arry.push(jobj)
+            return arry
+        } catch (err) {
+            console.error(err)
         }
-        return arry
-    }catch(err){
-        console.error(err)
-    }
     },
 
     createFolder: async function createFolder(foldername) {
-       let folderId
-       try{
-        var fileMetadata = {
-            'name': foldername,
-            'parents': ['1eUFTGrp8VYI0vQNO75unrp6X7qyfcgTs'],
-            'mimeType': 'application/vnd.google-apps.folder'
-        };
-       let res = await drive.files.create({
-            resource: fileMetadata,
-            fields: 'id'
-        })
-        folderId = res.data.id
-        this.updateFolderPermission(folderId)
-        return folderId
+        let folderId
+        try {
+            var fileMetadata = {
+                'name': foldername,
+                'parents': ['1eUFTGrp8VYI0vQNO75unrp6X7qyfcgTs'],
+                'mimeType': 'application/vnd.google-apps.folder'
+            };
+            let res = await drive.files.create({
+                resource: fileMetadata,
+                fields: 'id'
+            })
+            folderId = res.data.id
+            this.updateFolderPermission(folderId)
+            return folderId
 
-       }catch(err){
+        } catch (err) {
             console.error(err)
-           return false
-       }
-       
+            return false
+        }
+
     },
 
-    updateFolderPermission : async function updateFolderPermission(folderId){
-        
-            try {
-                const fileId = folderId;
-                //change file permisions to public.
-                await drive.permissions.create({
-                    fileId: fileId,
-                    requestBody: {
+    updateFolderPermission: async function updateFolderPermission(folderId) {
+
+        try {
+            const fileId = folderId;
+            //change file permisions to public.
+            await drive.permissions.create({
+                fileId: fileId,
+                requestBody: {
                     role: 'reader',
                     type: 'anyone',
-                    },
-                });
-        
-                //obtain the webview and webcontent links
-                const result = await drive.files.get({
-                    fileId: fileId,
-                    fields: 'webViewLink, webContentLink',
-                });
-              console.log(result.data);
-            } catch (error) {
-              console.log(error.message);
-            }
-          
+                },
+            });
+
+            //obtain the webview and webcontent links
+            const result = await drive.files.get({
+                fileId: fileId,
+                fields: 'webViewLink, webContentLink',
+            });
+            console.log(result.data);
+        } catch (error) {
+            console.log(error.message);
+        }
+
     },
 
-    createimage: async function createImage(filename, filepath, mimetype,parentid) {
+    createimage: async function createImage(filename, filepath, mimetype, parentid) {
         try {
-             await drive.files.create({
+            await drive.files.create({
                 requestBody: {
                     name: filename,
                     'parents': [parentid],
@@ -158,41 +158,42 @@ module.exports = {
         }
     },
 
-    sendimages : async function sendimages(placeid,status,files,folderId){
+    sendimages: async function sendimages(placeid, status, files, folderId) {
 
         if (files != null || files != undefined) {
             if (Array.isArray(files)) {
                 for (let index = 0; index < files.length; index++) {
                     let filenametosend = placeid + "_" + status + "_" + files[index].name
                     let filepath = files[index].tempFilePath
-                    this.createimage(filenametosend, filepath, files[index].mimetype,folderId)
+                    this.createimage(filenametosend, filepath, files[index].mimetype, folderId)
                 }
             } else {  //if not array = 1file
                 let filenametosend = placeid + "_" + status + "_" + files.name
                 let filepath = files.tempFilePath
-                this.createimage(filenametosend, filepath, files.mimetype,folderId)
+                this.createimage(filenametosend, filepath, files.mimetype, folderId)
             }
         } else {
             return false
         }
     },
 
-        updateRow: async function updateRow(record, files) {
-            let timestamp = new Date().toLocaleDateString
-            let result
-            //placeid from post
-            let placeid = record.placeid
-            let status = record.status
-            //load sheet for getindex in sheet
-            let rows = await this.loadSheet()
-            let rowIndex
-            for (let index = 0; index < rows.length; index++) {
-                if (rows[index].no == placeid) {
-                    rowIndex = index
-                }
+    updateRow: async function updateRow(record, files) {
+        let timestamp = new Date().toLocaleDateString
+        let result
+        //placeid from post
+        let placeid = record.placeid
+        let headname = record.name
+        let status = record.status
+        //load sheet for getindex in sheet
+        let rows = await this.loadSheet()
+        let rowIndex
+        for (let index = 0; index < rows.length; index++) {
+            if (rows[index].no == placeid) {
+                rowIndex = index
             }
-            this.sendimages(status,files)
-
+        }
+        if ((headname == rows[rowIndex].headName) && (placeid == rows[rowIndex].no )) {
+            this.sendimages(status, files)
             try {
                 let folderId
                 switch (status) {
@@ -204,28 +205,34 @@ module.exports = {
                         rows[rowIndex].beforeReport = record.reporttext
                         rows[rowIndex].timestamp = timestamp
                         //folderId =await this.createFolder(placeid)
-                        this.sendimages(placeid,status,files,folderId)
+                        this.sendimages(placeid, status, files, folderId)
                         break;
                     case 'current':
                         folderId = rows[rowIndex].folderID
                         rows[rowIndex].status = record.status
-                        rows[rowIndex].currentReport = record.reporttext
                         rows[rowIndex].timestamp = timestamp
-                        this.sendimages(placeid,status,files,folderId)
+                        this.sendimages(placeid, status, files, folderId)
                         break;
 
                     case 'after':
                         folderId = rows[rowIndex].folderID
                         rows[rowIndex].status = record.status
-                        rows[rowIndex].afterReport = record.reporttext
                         rows[rowIndex].normalGuns = record.normalguns
                         rows[rowIndex].warGuns = record.warguns
                         rows[rowIndex].thaicraftGuns = record.thaicraftguns
                         rows[rowIndex].ammunition = record.ammunition
                         rows[rowIndex].criminal = record.criminal
-                        rows[rowIndex].etc  = record.etc
+                        rows[rowIndex].etc = record.etc
                         rows[rowIndex].timestamp = timestamp
-                        this.sendimages(placeid,status,files,folderId)
+                        this.sendimages(placeid, status, files, folderId)
+                        break;
+                    case 'abort':
+                        folderId = rows[rowIndex].folderID
+                        rows[rowIndex].status = record.status
+                        rows[rowIndex].criminal = record.criminal
+                        rows[rowIndex].etc = record.etc
+                        rows[rowIndex].timestamp = timestamp
+                        this.sendimages(placeid, status, files, folderId)
                         break;
 
                 }
@@ -234,39 +241,43 @@ module.exports = {
                 return result
             } catch (err) {
                 console.error('User input :' + placeid + 'get error' + err)
-                return false
+                let reserr = "รหัสจุดค้นที่ : " + placeid + " reason : " + err
+                return reserr
             }
-        },
-
-        gettotalData: async function getallrows() {
-
-            let jsonstring
-            try {
-                let jsonobj = new Object();
-                await doc.useServiceAccountAuth(creds)
-                await doc.loadInfo()
-                let sheet = await doc.sheetsByTitle['totaltable']
-                await sheet.loadCells('A1:X2');
-                //column 0 ยังไม่เข้า,1 ก่อนเข้า,2 ขณะเข้า,3 หลังเข้า,4 ปืนทั่วไป,5 ปืนสงคราม,6 ปืนไทยประดิษฐ์,7 ยุทธภัณฑ์
-                jsonobj.all = sheet.getCell(1, 0).value
-                jsonobj.notchecked = sheet.getCell(1,1).value
-                jsonobj.before = sheet.getCell(1, 2).value
-                jsonobj.current = sheet.getCell(1, 3).value
-                jsonobj.after = sheet.getCell(1, 4).value
-                jsonobj.normalgun = sheet.getCell(1, 5).value
-                jsonobj.wargun = sheet.getCell(1, 6).value
-                jsonobj.thaicraftgun = sheet.getCell(1, 7).value
-                jsonobj.ammunition = sheet.getCell(1, 8).value
-                jsonobj.total = sheet.getCell(1,9).value
-                jsonstring = JSON.stringify(jsonobj);
-
-            } catch (err) {
-                console.error(err)
-            }
-            return (jsonstring)
+        } else {
+            return 'notmatch'
         }
+    },
 
+    gettotalData: async function getallrows() {
+
+        let jsonstring
+        try {
+            let jsonobj = new Object();
+            await doc.useServiceAccountAuth(creds)
+            await doc.loadInfo()
+            let sheet = await doc.sheetsByTitle['totaltable']
+            await sheet.loadCells('A1:X2');
+            //column 0 ยังไม่เข้า,1 ก่อนเข้า,2 ขณะเข้า,3 หลังเข้า,4 ปืนทั่วไป,5 ปืนสงคราม,6 ปืนไทยประดิษฐ์,7 ยุทธภัณฑ์
+            jsonobj.all = sheet.getCell(1, 0).value
+            jsonobj.notchecked = sheet.getCell(1, 1).value
+            jsonobj.before = sheet.getCell(1, 2).value
+            jsonobj.current = sheet.getCell(1, 3).value
+            jsonobj.after = sheet.getCell(1, 4).value
+            jsonobj.normalgun = sheet.getCell(1, 5).value
+            jsonobj.wargun = sheet.getCell(1, 6).value
+            jsonobj.thaicraftgun = sheet.getCell(1, 7).value
+            jsonobj.ammunition = sheet.getCell(1, 8).value
+            jsonobj.total = sheet.getCell(1, 9).value
+            jsonstring = JSON.stringify(jsonobj);
+
+        } catch (err) {
+            console.error(err)
+        }
+        return (jsonstring)
     }
+
+}
 
 
 
