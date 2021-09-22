@@ -74,4 +74,5 @@ function initialload(){
 
      return mapsKey
 }
-app.listen(process.env.PORT , (req, res) => console.log('app is running'))
+let port = process.env.PORT 
+app.listen( process.env.PORT, (req, res) => console.log('app is running'))

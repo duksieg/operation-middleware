@@ -65,7 +65,7 @@ module.exports = {
                 idcard: allrow[index].idcard,
                 coderank: allrow[index].code,
                 fullname: allrow[index].fullname,
-                latlng: allrow[index].LatLng,
+                pointlatlng: allrow[index].LatLng,
                 headname: allrow[index].headName,
                 contactno: allrow[index].contactNo,
                 status: allrow[index].status,
@@ -79,7 +79,8 @@ module.exports = {
                 ammunition: allrow[index].ammunition,
                 totalfound: allrow[index].totalFound,
                 criminal:allrow[index].criminal,
-                etc:allrow[index].etc
+                etc:allrow[index].etc,
+                dv:allrow[index].dv
             }
             arry.push(jobj)
         }
@@ -245,16 +246,18 @@ module.exports = {
                 await doc.useServiceAccountAuth(creds)
                 await doc.loadInfo()
                 let sheet = await doc.sheetsByTitle['totaltable']
-                await sheet.loadCells('A1:h2');
+                await sheet.loadCells('A1:X2');
                 //column 0 ยังไม่เข้า,1 ก่อนเข้า,2 ขณะเข้า,3 หลังเข้า,4 ปืนทั่วไป,5 ปืนสงคราม,6 ปืนไทยประดิษฐ์,7 ยุทธภัณฑ์
                 jsonobj.all = sheet.getCell(1, 0).value
-                jsonobj.before = sheet.getCell(1, 1).value
-                jsonobj.current = sheet.getCell(1, 2).value
-                jsonobj.after = sheet.getCell(1, 3).value
-                jsonobj.normalgun = sheet.getCell(1, 4).value
-                jsonobj.wargun = sheet.getCell(1, 5).value
-                jsonobj.thaicraftgun = sheet.getCell(1, 6).value
-                jsonobj.ammunition = sheet.getCell(1, 7).value
+                jsonobj.notchecked = sheet.getCell(1,1).value
+                jsonobj.before = sheet.getCell(1, 2).value
+                jsonobj.current = sheet.getCell(1, 3).value
+                jsonobj.after = sheet.getCell(1, 4).value
+                jsonobj.normalgun = sheet.getCell(1, 5).value
+                jsonobj.wargun = sheet.getCell(1, 6).value
+                jsonobj.thaicraftgun = sheet.getCell(1, 7).value
+                jsonobj.ammunition = sheet.getCell(1, 8).value
+                jsonobj.total = sheet.getCell(1,9).value
                 jsonstring = JSON.stringify(jsonobj);
 
             } catch (err) {
