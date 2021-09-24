@@ -2,7 +2,7 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { google } = require('googleapis');
 const fs = require('fs');
-
+const linesender = require('./linenoti')
 const sheetID = "189Fl1bnbuZNUESOu6juk0YyF6ZtE3y0APK2ullhAwj4"
 const doc = new GoogleSpreadsheet(sheetID);
 var creds = require('./key.json');
@@ -18,7 +18,10 @@ const drive = google.drive({
 });
 
 
+
 module.exports = {
+
+
     loadSheet: async function loadsheet() {
         let alldata
         try {
@@ -26,12 +29,37 @@ module.exports = {
             await doc.loadInfo()
             let sheet = await doc.sheetsByTitle['narai']
             alldata = await sheet.getRows()
-
         } catch (err) {
             console.error(err)
         }
         return alldata
     },
+
+    getfileid: async function getfileid(IDdetect){
+        let parentid = '14IKnpv20XhDsKl4UTJqhm3mEjqRxH4Ik'
+        let result
+        try {
+            let resp = await drive.files.list({
+                q: `'${parentid}' in parents and name contains '${IDdetect}'`,
+                mimeType:'image/jpeg,image/png',
+                spaces: 'drive'
+            })
+            // resp.data.files.forEach(element => {
+            //     console.log(element)
+            // });
+            result = resp.data.files
+            return result
+        }
+        catch (err) {
+            console.error(err)
+            return false
+        }
+
+
+    },
+    
+
+
 
     getimages: async function getimages(parentid, defaultid) {
         if (parentid == null || parentid == undefined) parentid = defaultid
@@ -69,20 +97,19 @@ module.exports = {
                     headname: allrow[index].headName,
                     contactno: allrow[index].contactNo,
                     status: allrow[index].status,
-                    beforereport: allrow[index].beforeReport,
                     folderid: allrow[index].folderID,
-                    current: allrow[index].currentReport,
-                    afterreport: allrow[index].afterReport,
+                    criminalimage:allrow[index].criminalimage,
                     normalgun: allrow[index].normalGuns,
                     wargun: allrow[index].warGuns,
                     thaicraftgun: allrow[index].thaicraftGuns,
                     ammunition: allrow[index].ammunition,
                     totalfound: allrow[index].totalFound,
                     criminal: allrow[index].criminal,
+                    specialcase:allrow[index].specialcase,
                     etc: allrow[index].etc,
                     dv: allrow[index].dv
                 }
-                arry.push(jobj)
+                if(allrow[index].IDdetect !=null ) arry.push(jobj)
             }
             return arry
         } catch (err) {
@@ -90,21 +117,23 @@ module.exports = {
         }
     },
 
-    createFolder: async function createFolder(foldername) {
-        let folderId
+    createFolder: async function createFolder(pointname,rowindex) {
         try {
             var fileMetadata = {
-                'name': foldername,
-                'parents': ['1eUFTGrp8VYI0vQNO75unrp6X7qyfcgTs'],
+                'name': pointname,
+                'parents': ['1HILztWrd42JypUEtXGqr8lNtbeYXbvb1'],
                 'mimeType': 'application/vnd.google-apps.folder'
             };
             let res = await drive.files.create({
                 resource: fileMetadata,
-                fields: 'id'
+                fields: 'id,webViewLink'
             })
-            folderId = res.data.id
-            this.updateFolderPermission(folderId)
-            return folderId
+           let  folderId = res.data.id
+            let folderlink = res.data.webViewLink
+             await this.updateFolderPermission(folderId)
+             await this.updateRowfolderID(folderlink,rowindex)
+            
+            return folderlink
 
         } catch (err) {
             console.error(err)
@@ -131,9 +160,9 @@ module.exports = {
                 fileId: fileId,
                 fields: 'webViewLink, webContentLink',
             });
-            console.log(result.data);
+            return(result);
         } catch (error) {
-            console.log(error.message);
+            return (error);
         }
 
     },
@@ -177,9 +206,24 @@ module.exports = {
         }
     },
 
+    updateRowfolderID: async function updateRowfolderID(linkfolderid,pointname){
+        
+        try{
+            let rows = await this.loadSheet()
+            rows[rowindex].folderID = linkfolderid
+            await rows[rowindex].save();
+        return true
+    }catch(err){
+        console.error(err)
+    }
+    },
+
+
     updateRow: async function updateRow(record, files) {
-        let timestamp = new Date().toLocaleDateString
-        let result
+        let date = new Date().toLocaleDateString("th-TH")
+        let time = new Date().toLocaleTimeString()
+        let timestamp = date+" "+time
+        let result,linemessage
         //placeid from post
         let placeid = record.placeid
         let headname = record.name
@@ -195,27 +239,25 @@ module.exports = {
         if ((headname == rows[rowIndex].headName) && (placeid == rows[rowIndex].IDdetect )) {
             this.sendimages(status, files)
             try {
-                let folderId
+                let folderId = rows[rowIndex].folderID
+               folderId = folderId.replace('https://drive.google.com/drive/folders/','')
                 switch (status) {
                     case 'before':
-                        folderId = rows[rowIndex].folderID
                         rows[rowIndex].status = record.status
                         rows[rowIndex].headName = record.name
                         rows[rowIndex].contactNo = record.tel
-                        rows[rowIndex].beforeReport = record.reporttext
                         rows[rowIndex].timestamp = timestamp
-                        //folderId =await this.createFolder(placeid)
+                        linemessage=`\n\nจุดเข้าค้นที่ ${record.placeid}\n\nเรียนผู้บังคับบัญชา\nกระผม ${record.name}\nขออนุญาติรายงาน\n\nสถานะก่อนเข้าค้น\nขณะนี้ ${timestamp}\n\nพร้อมแนบข้อมูลดังนี้ ${folderId} `
                         this.sendimages(placeid, status, files, folderId)
                         break;
                     case 'current':
-                        folderId = rows[rowIndex].folderID
                         rows[rowIndex].status = record.status
                         rows[rowIndex].timestamp = timestamp
+                        linemessage=''
                         this.sendimages(placeid, status, files, folderId)
                         break;
 
                     case 'after':
-                        folderId = rows[rowIndex].folderID
                         rows[rowIndex].status = record.status
                         rows[rowIndex].normalGuns = record.normalguns
                         rows[rowIndex].warGuns = record.warguns
@@ -224,20 +266,28 @@ module.exports = {
                         rows[rowIndex].criminal = record.criminal
                         rows[rowIndex].etc = record.etc
                         rows[rowIndex].timestamp = timestamp
+                        rows[rowIndex].specialcase = record.specialcase
+                        linemessage=''
                         this.sendimages(placeid, status, files, folderId)
                         break;
                     case 'abort':
-                        folderId = rows[rowIndex].folderID
                         rows[rowIndex].status = record.status
                         rows[rowIndex].criminal = record.criminal
                         rows[rowIndex].etc = record.etc
                         rows[rowIndex].timestamp = timestamp
+                        linemessage=''
                         this.sendimages(placeid, status, files, folderId)
                         break;
 
                 }
                 await rows[rowIndex].save();
                 result = true
+                if(result){
+                    let jsonData = {
+                        message: linemessage,
+                      }
+                  //  let response = linesender.linenoti(jsonData)
+                }
                 return result
             } catch (err) {
                 console.error('User input :' + placeid + 'get error' + err)
@@ -276,7 +326,8 @@ module.exports = {
             console.error(err)
         }
         return (jsonstring)
-    }
+    },
+    
 
 }
 
