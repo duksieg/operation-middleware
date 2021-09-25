@@ -94,8 +94,8 @@
                             <label for="reportText">รายงานสถานะการค้น</label>
                             <textarea class="form-control" rows="10" name="reporttext" id="reporttext" required></textarea>
                         </div> -->
-                        <label for="formFileMultiple" class="form-label">อัพโหลดรูปภาพหรือไฟล์วิดีโอ</label>
-                        <input class="form-control" type="file" name="filestore" accept="image/*" id="images" multiple
+                        <label for="formFileMultiple" class="form-label">อัพโหลดรูปภาพหรือไฟล์วิดีโอ ขนาดไฟล์ไม่ควรเกิน 25MB</label>
+                        <input class="form-control" onchange="checkfilesize()" type="file" name="filestore" accept="image/*,video/*" id="images" multiple
                             required />
                         <div class="col-5" id="hidden_divFound" style="display:none;">
                             <label for="formGroupStatusInput">พบเจอสิ่งผิดกฎหมายหรือไม่</label>
@@ -160,11 +160,12 @@
                         <div class="col-sm-4">
                             <input type="text" class="form-control" name="etc" id="etc"
                                 placeholder="เช่นยาบ้า 10,000 เม็ด">
-                                
+
                         </div>
                         <div class="col-sm-4">
                             <label class="form-check-label" for="flexCheckDefault">
-                                <input class="form-check-input" type="checkbox" value="true" name="specialcase" id="flexCheckDefault">
+                                <input class="form-check-input" type="checkbox" value="true" name="specialcase"
+                                    id="flexCheckDefault">
                                 <label class="form-check-label" for="flexCheckDefault">
                                     พิจารณาแล้วเห็นควรให้ผู้บังคับบัญชาเข้าร่วม
                                 </label>
@@ -209,7 +210,7 @@
 </html>
 <script type="text/javascript">
     function showFound(status) {
-        if (status.value == "after") {
+        if (status.value == "after" || status.value=="current") {
             document.getElementById('hidden_divFound').style.display = "block";
         } else {
             document.getElementById('hidden_divFound').style.display = "none";
@@ -217,18 +218,35 @@
         }
     }
 
-    // function reset(){
-    //     document.getElementById('status').reset();
-    //     document.getElementById('placeid').reset();
-    //     document.getElementById('name').reset();
-    //     document.getElementById('isfound').reset();
-    //     document.getElementById('images').reset();
-    //     document.getElementById('criminals').reset();
-    //     document.getElementById('normalguns').reset();
-    //     document.getElementById('warguns').reset();
-    //     document.getElementById('thaicraftguns').reset();
-    //     document.getElementById('ammunition').reset();
-    // }
+    
+
+    function checkfilesize() {
+        let fi = document.getElementById('images');
+        // Check if any file is selected.
+        let isover = false
+        if (fi.files.length > 0) 
+        {
+            if(fi.files.length > 5){
+                alert('สามารถส่งรูปได้สูงสุดไม่เกิน 5 รูป');
+                isover=true
+            }else{
+                for (let i = 0; i <= fi.files.length - 1; i++) {
+                const fsize = fi.files.item(i).size;
+                const toMB = 1024*1024
+                const file = Math.round((fsize / toMB));
+                // The size of the file. 25MB
+                if (file >= 40) {
+                    alert(`ขนาดไฟล์ ${fi.files[i].name} มีขนาด ${file} MB ใหญ่เกินกว่าที่กำหนดกรุณาเลือกรูปใหม่`);
+                    isover=true
+                } 
+            }
+            }
+            
+            if(isover) fi.value=""
+        }
+            
+    };
+
     function loading() {
         document.getElementById('loading').style.display = "block";
     }
@@ -237,7 +255,7 @@
     function showGuns(isfound) {
         let select = document.getElementById('status');
         let value = select.options[select.selectedIndex].value;
-        if (isfound.value == 'found' && value == 'after') {
+        if (isfound.value == 'found' && (value == 'after' || value =='current')) {
             document.getElementById('hidden_div').style.display = "block";
         } else {
             document.getElementById('hidden_div').style.display = "none";

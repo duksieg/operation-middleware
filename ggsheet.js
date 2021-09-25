@@ -244,16 +244,21 @@ module.exports = {
                 switch (status) {
                     case 'before':
                         rows[rowIndex].status = record.status
-                        rows[rowIndex].headName = record.name
-                        rows[rowIndex].contactNo = record.tel
                         rows[rowIndex].timestamp = timestamp
-                        linemessage=`\n\nจุดเข้าค้นที่ ${record.placeid}\n\nเรียนผู้บังคับบัญชา\nกระผม ${record.name}\nขออนุญาติรายงาน\n\nสถานะก่อนเข้าค้น\nขณะนี้ ${timestamp}\n\nพร้อมแนบข้อมูลดังนี้ ${folderId} `
+                        linemessage=`\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: ก่อนเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactno}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nภาพถ่ายประกอบการรายงาน:${rows[rowIndex].folderID} `
                         this.sendimages(placeid, status, files, folderId)
                         break;
                     case 'current':
                         rows[rowIndex].status = record.status
+                        rows[rowIndex].normalGuns = record.normalguns
+                        rows[rowIndex].warGuns = record.warguns
+                        rows[rowIndex].thaicraftGuns = record.thaicraftguns
+                        rows[rowIndex].ammunition = record.ammunition
+                        rows[rowIndex].criminal = record.criminal
+                        rows[rowIndex].etc = record.etc
                         rows[rowIndex].timestamp = timestamp
-                        linemessage=''
+                        rows[rowIndex].specialcase = record.specialcase
+                        linemessage=`\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: ขณะเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nพบของกลาง:\nอาวุธปืนทั่วไป:${record.normalguns}\nอาวุธปืนสงคราม:${record.warguns}\nอาวุธปืนไทยประดิษฐ์:${record.thaicraftguns}\nเครื่องยุทธภัณฑ์:${record.ammunition}\nอื่นๆ:${record.etc}\n\nภาพถ่ายประกอบการรายงาน:${rows[rowIndex].folderID}`
                         this.sendimages(placeid, status, files, folderId)
                         break;
 
@@ -267,15 +272,7 @@ module.exports = {
                         rows[rowIndex].etc = record.etc
                         rows[rowIndex].timestamp = timestamp
                         rows[rowIndex].specialcase = record.specialcase
-                        linemessage=''
-                        this.sendimages(placeid, status, files, folderId)
-                        break;
-                    case 'abort':
-                        rows[rowIndex].status = record.status
-                        rows[rowIndex].criminal = record.criminal
-                        rows[rowIndex].etc = record.etc
-                        rows[rowIndex].timestamp = timestamp
-                        linemessage=''
+                        linemessage=`\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: หลังเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nพบของกลาง:\nอาวุธปืนทั่วไป:${record.normalguns}\nอาวุธปืนสงคราม:${record.warguns}\nอาวุธปืนไทยประดิษฐ์:${record.thaicraftguns}\nเครื่องยุทธภัณฑ์:${record.ammunition}\nอื่นๆ:${record.etc}\n\nภาพถ่ายประกอบการรายงาน:${rows[rowIndex].folderID}`
                         this.sendimages(placeid, status, files, folderId)
                         break;
 
@@ -286,7 +283,7 @@ module.exports = {
                     let jsonData = {
                         message: linemessage,
                       }
-                  //  let response = linesender.linenoti(jsonData)
+                  let response = linesender.linenoti(jsonData)
                 }
                 return result
             } catch (err) {

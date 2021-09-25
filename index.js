@@ -5,7 +5,6 @@ var linesender = require('./linenoti')
 const fileupload = require('express-fileupload')
 const fs = require('fs')
 const cor = require('cors')
-const { hasUncaughtExceptionCaptureCallback } = require('process')
 app.set('view engine', 'ejs');
 app.use(cor())
 app.use(express.urlencoded({ extended: true }));
@@ -22,14 +21,21 @@ app.get("/", async (req, res) => {
 
 
 app.post("/saverecord", async (req, res) => {
-    let checkstatus = await util.updateRow(req.body, req.files.filestore)
-    if (checkstatus == true) {
-        res.render('success')
-    } else if (checkstatus == 'notmatch') {
-        res.render('notmatch', { reason: 'รหัสจุดค้น และ ชื่อหัวหน้าชุด ไม่ตรงกับในระบบ' })
-    } else {
-        res.render('notmatch', { reason: checkstatus })
+    let checkstatus
+    try{
+        checkstatus = await util.updateRow(req.body, req.files.filestore)
+        if (checkstatus == true) {
+            res.render('success')
+        } else if (checkstatus == 'notmatch') {
+            res.render('notmatch', { reason: 'รหัสจุดค้น และ ชื่อหัวหน้าชุด ไม่ตรงกับในระบบ' })
+        } else {
+            res.render('notmatch', { reason: checkstatus })
+        }
+    }catch(err){
+        console.error(res.checkstatus)
+        res.render('notmatch', { reason: err })
     }
+   
 })
 
 app.get("/info", async (req, res) => {
