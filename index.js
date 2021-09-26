@@ -18,6 +18,16 @@ app.get("/", async (req, res) => {
     res.render('index', { point: map.get('point'), agent: map.get('agentname') })
 })
 
+app.get('/arrange',async (req,res)=>{
+    let temparry = []
+  let agname =  map.get('agentname')
+  agname.forEach(element => {
+      if(!temparry.includes(element)){
+          temparry.push(element)
+      }
+  });
+  res.send(temparry)
+})
 
 app.post("/saverecord", async (req, res) => {
     let checkstatus
