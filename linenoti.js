@@ -11,7 +11,7 @@ linenoti: function linenoty(msg){
         method: 'post',
         url: 'https://notify-api.line.me/api/notify',
         headers: {
-          'Authorization': 'Bearer ' + 'jWbyfZAqobSdfy7fLtMUJ0wqtRJt1hGwI8xHpuxzYLa',
+          'Authorization': 'Bearer ' + 'd1yODi3q1FULeA8QIS0KDJAewkktuvQS782QR2lWnFd',
           'Content-Type': 'application/x-www-form-urlencoded',
           'Access-Control-Allow-Origin': '*'
         },
