@@ -323,7 +323,7 @@ module.exports = {
             }
         } else {
             console.log('User input:'+headname+" รหัสเป้า :"+placeid)
-            console.log('System :'+checkname+" รหัสเป้า :"+rows[rowIndex].IDdetect)
+            console.log('System :'+systemcheckname+" รหัสเป้า :"+rows[rowIndex].IDdetect)
             return 'notmatch'
         }
     },
