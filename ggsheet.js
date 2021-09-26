@@ -57,6 +57,28 @@ module.exports = {
 
 
     },
+    getfolderid: async function getfolderid(IDdetect){
+        let parentid = '1jPdMgxWSH3FZzHALEAEjY5KtgJu0fEid'
+        let result
+        try {
+            let resp = await drive.files.list({
+                q: `'${parentid}' in parents and name contains '${IDdetect}'`,
+                mimeType:'application/vnd.google-apps.folder',
+                spaces: 'drive',
+            })
+            // resp.data.files.forEach(element => {
+            //     console.log(element)
+            // });
+            result = resp.data.files
+            return result
+        }
+        catch (err) {
+            console.error(err)
+            return false
+        }
+
+
+    },
     
 
 
@@ -226,7 +248,7 @@ module.exports = {
         let result,linemessage
         //placeid from post
         let placeid = record.placeid
-        let headname = record.name
+        let headname = record.name.toString().replace(' ','')
         let status = record.status
         //load sheet for getindex in sheet
         let rows = await this.loadSheet()
@@ -236,7 +258,14 @@ module.exports = {
                 rowIndex = index
             }
         }
-        if ((headname == rows[rowIndex].headName) && (placeid == rows[rowIndex].IDdetect )) {
+        let systemcheckname = rows[rowIndex].headName.toString().replace(' ','')
+        let systemcheckid = rows[rowIndex].IDdetect.toString().replace(' ','').toLocaleLowerCase()
+        let checkIDdetect = placeid.toString().trim().toLocaleLowerCase()
+
+        const collator = new Intl.Collator('th');
+        const order = collator.compare(systemcheckname,headname);
+
+        if ((order==0) && (checkIDdetect == systemcheckid )) {
             this.sendimages(status, files)
             try {
                 let folderId = rows[rowIndex].folderID
@@ -283,7 +312,8 @@ module.exports = {
                     let jsonData = {
                         message: linemessage,
                       }
-                  let response = linesender.linenoti(jsonData)
+                 let response = linesender.linenoti(jsonData)
+                  console.log('place id line response :'+response)
                 }
                 return result
             } catch (err) {
@@ -292,6 +322,8 @@ module.exports = {
                 return reserr
             }
         } else {
+            console.log('User input:'+headname+" รหัสเป้า :"+placeid)
+            console.log('System :'+checkname+" รหัสเป้า :"+rows[rowIndex].IDdetect)
             return 'notmatch'
         }
     },

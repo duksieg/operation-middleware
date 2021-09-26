@@ -52,19 +52,19 @@ app.get("/info", async (req, res) => {
     res.send(total)
 })
 
-app.post("/imagesbyuser", async (req, res) => {
-    //let folderid = req.body.records
-    //let jsonstr = JSON.stringify(req) 
+// app.post("/imagesbyuser", async (req, res) => {
+//     //let folderid = req.body.records
+//     //let jsonstr = JSON.stringify(req) 
 
-    console.log(req)
-    // let resp = await util.getimages(folderid,'1PNFS7vp9ReWMHBROjIhYg70qGGqaASb5') 
-    // let jsonObj = new Object()
-    // let jsonstring
-    // jsonObj.records = resp
-    // jsonstring = JSON.stringify(jsonObj)
-    // console.log(jsonstring)
-    res.send(req.body.username)
-})
+//     console.log(req)
+//     // let resp = await util.getimages(folderid,'1PNFS7vp9ReWMHBROjIhYg70qGGqaASb5') 
+//     // let jsonObj = new Object()
+//     // let jsonstring
+//     // jsonObj.records = resp
+//     // jsonstring = JSON.stringify(jsonObj)
+//     // console.log(jsonstring)
+//     res.send(req.body.username)
+// })
 
 
 
@@ -101,45 +101,42 @@ app.get('/testlistfile', async (req, res) => {
 try{
     let allrows  = await util.loadSheet()
     let resp = await util.getfileid()
-
+    
     for (let index = 0; index < allrows.length; index++) {
        let fileid = await util.getfileid(allrows[index].IDdetect)
          try{
             allrows[index].criminalimage =  fileid[0].id
           await allrows[index].save();
          } catch(err){
-             console.log(index+" error")
+             console.log(error)
          }
     }
-
-    // resp.forEach(element => {
-    //     let pointnamesplited = element.name.split('_')
-    //     let pointname = pointnamesplited[0]
-    //     let rowindex
-    //     if (element.id != null && element.name!= null) {
-    //         let imageid = element.id
-    //         for (let index = 0; index < allrows.length; index++) {
-    //             if(allrows[index].IDdetect == pointname)
-    //             rowindex = index
-    //         }
-    //         try{
-    //             let waitTill = new Date(new Date().getTime() + 2 * 1000);
-    //             while(waitTill > new Date()){}               
-    //             allrows[rowindex].criminalimage = imageid
-    //            let result =  allrows[rowindex].save();
-    //            console.log(rowindex+'Saved')
-    //         }catch(err){
-    //             console.log(rowindex+': '+err)
-    //         }
-           
-           
-    //     }
-    // });
     res.send(resp)
 }catch(err){
     console.error(err)
 }
 })
+
+app.get('/testlistfolder', async (req, res) => {
+    let ggdrive = 'https://drive.google.com/drive/folders/'
+    let resp
+    try{
+        let allrows  = await util.loadSheet()
+        for (let index = 0; index < allrows.length; index++) {
+           let folderid = await util.getfolderid(allrows[index].IDdetect)
+             try{
+                setTimeout(() => 5000);
+                allrows[index].folderID =  ggdrive+folderid[0].id
+              await allrows[index].save();
+             } catch(err){
+                 console.log(err)
+             }
+        }
+        res.send(resp)
+    }catch(err){
+        console.error(err)
+    }
+    })
 
 
 function initialload() {
