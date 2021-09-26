@@ -1,7 +1,6 @@
 const express = require('express')
 const app = express()
 var util = require('./ggsheet')
-var linesender = require('./linenoti')
 const fileupload = require('express-fileupload')
 const fs = require('fs')
 const cor = require('cors')
