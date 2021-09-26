@@ -220,8 +220,8 @@ module.exports = {
 
 
     updateRow: async function updateRow(record, files) {
-        let date = new Date().toLocaleDateString("th-TH")
-        let time = new Date().toLocaleTimeString()
+        let date = new Date().toLocaleDateString("th-TH" ,{ timeZone: 'Asia/Bangkok' })
+        let time = new Date().toLocaleTimeString("th-TH" ,{ timeZone: 'Asia/Bangkok' })
         let timestamp = date+" "+time
         let result,linemessage
         //placeid from post
