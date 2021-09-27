@@ -6,7 +6,7 @@ const axios = require('axios')
 module.exports = {
     
 
-linenoti: function linenoty(msg){
+linenoti: function linenoty(msg,placeid){
     axios({
         method: 'post',
         url: 'https://notify-api.line.me/api/notify',
@@ -19,8 +19,7 @@ linenoti: function linenoty(msg){
       })
     .then( function(res) {
      if(res.status === 200){
-         console.log('notification success')
-         return(res.status)
+      console.log( placeid+' line response :'+res.status)
      }
     })
     .catch( function(err) {

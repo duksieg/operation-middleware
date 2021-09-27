@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 var util = require('./ggsheet')
+var slideutil = require('./updateslide')
 const fileupload = require('express-fileupload')
 const fs = require('fs')
 const cor = require('cors')
@@ -66,7 +67,10 @@ app.get("/info", async (req, res) => {
 //     res.send(req.body.username)
 // })
 
-
+app.get('/slide',async (req,res)=>{
+    let resp = slideutil.listslide()
+    res.send(resp)
+})
 
 
 app.get("/detail", async (req, res) => {
@@ -108,7 +112,7 @@ try{
             allrows[index].criminalimage =  fileid[0].id
           await allrows[index].save();
          } catch(err){
-             console.log(error)
+             console.log(err)
          }
     }
     res.send(resp)
