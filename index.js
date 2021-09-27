@@ -68,7 +68,7 @@ app.get("/info", async (req, res) => {
 // })
 
 app.get('/slide',async (req,res)=>{
-    let resp = slideutil.listslide()
+    let resp = slideutil.updatetext()
     res.send(resp)
 })
 
