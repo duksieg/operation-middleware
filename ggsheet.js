@@ -271,6 +271,7 @@ module.exports = {
             let war=0
             let thaicraft =0
             let ammunition =0 
+            let total = 0
             try {
                 let folderId = rows[rowIndex].folderID
                folderId = folderId.replace('https://drive.google.com/drive/folders/','')
