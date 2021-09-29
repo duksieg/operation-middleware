@@ -308,8 +308,8 @@ module.exports = {
                          war = parseInt(record.warguns)
                         thaicraft = parseInt(record.thaicraftguns)
                         ammunition = parseInt(record.ammunition)
-                        console.log('total :'+total+ ',normal :'+normal+',war :'+war+',thaicraft : '+thaicraft+',ammution :'+ammunition)
                         total = normal+war+thaicraft+ammunition
+                        console.log('total :'+total+ ',normal :'+normal+',war :'+war+',thaicraft : '+thaicraft+',ammution :'+ammunition)
                         rows[rowIndex].status = record.status
                         rows[rowIndex].normalGuns = record.normalguns
                         rows[rowIndex].warGuns = record.warguns
