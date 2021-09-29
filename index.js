@@ -13,6 +13,7 @@ app.use(fileupload({
     tempFileDir: '/tmp/'
 }));
 
+
 var map = initialload()
 
 app.get("/", async (req, res) => {

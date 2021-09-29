@@ -16,16 +16,19 @@ const drive = google.drive({
   auth: authcreds
 });
 
+const presentationID = '1F_8BpDtLQF5fiAd2RbL0NRg5YCh3zzPxbcedRrUazgI'
+const templateslide = 'p'
+
 module.exports = {
   listslide: listslides = () => {
     slide.presentations.get({
-      presentationId: slideid,
+      presentationId: presentationID,
     }, (err, res) => {
       if (err) return console.log('The API returned an error: ' + err);
       const length = res.data.slides.length;
       console.log('The presentation contains %s slides:', length);
       res.data.slides.map((slide, i) => {
-        console.log(`- Slide #${i + 1} contains ${slide.pageElements.length} elements.`);
+        console.log(slide.pageElements[0]);
       });
     });
   },
@@ -36,27 +39,54 @@ module.exports = {
     let pointname = 'รัฐวิชญ์  '
     let pointno = '1A1'
     var newIDs = ["copiedSlide_001", "copiedSlide_002", "copiedSlide_003"]
-    const presentationID = '1F_8BpDtLQF5fiAd2RbL0NRg5YCh3zzPxbcedRrUazgI'
-    const TemplateobjID = 'id.p'
+    // find template slide or first slide
+    // try{
+    // let findtemplate =await  slide.presentations.get(
+    //   {
+    //     presentationId: presentationID,
+    //     fields: "slides(objectId)",
+    //   })
+    //   findtemplate.data.slides[0].objectId
+    // }catch(err){
+    //   console.error('could not load template slide'+err)
+    // }
+    
+    for (let index = 0; index < newIDs.length; index++) {
+      let element = newIDs[index];
     try {
+      let requests = [ 
+        {
+        duplicateObject: {
+          objectId: templateslide
+        }
+      },
+      {
+        replaceAllText: {
+           containsText: {
+             text: '{{point-name}}',
+             matchCase: true
+           },
+           replaceText: element
+        }
+      }]  
 
-      var requests = newIDs.map(function(id) {
-        var obj = {};
-        obj[TemplateobjID] = id;
-        return {duplicateObject: {objectId: TemplateobjID, objectIds: obj}};
-      });
-       
-       let result = await slide.presentations.batchUpdate({
-          presentationId: presentationID,
-          resource: {
-            requests,
-        } })
-        return result
-      }
+      slide.presentations.batchUpdate({
+        presentationId:presentationID,
+        resource:{
+          requests
+        }
+      },(err,res)=>{
+        if (err) {
+          console.log(err);
+          return;
+        }
+        console.log(res.data);
+      })
+    }
   catch (err) {
         console.error(err)
       }
-    }
-
+  }
+}
     
 }
