@@ -43,7 +43,7 @@ app.post("/saverecord", async (req, res) => {
             res.render('notmatch', { reason: checkstatus })
         }
     }catch(err){
-        console.error(res.checkstatus)
+        console.error(res.checkstatus+" : "+err)
         res.render('notmatch', { reason: err })
     }
    
