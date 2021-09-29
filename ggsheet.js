@@ -267,6 +267,7 @@ module.exports = {
 
         if ((order==0) && (checkIDdetect == systemcheckid )) {
             this.sendimages(status, files)
+            let normal,war,thaicraft,ammunition
             try {
                 let folderId = rows[rowIndex].folderID
                folderId = folderId.replace('https://drive.google.com/drive/folders/','')
@@ -278,6 +279,11 @@ module.exports = {
                         this.sendimages(placeid, status, files, folderId)
                         break;
                     case 'current':
+                         normal = parseInt(record.normalguns)
+                         war = parseInt(record.warguns)
+                         thaicraft = parseInt(record.thaicraftguns)
+                         ammunition = parseInt(record.ammunition)
+                         total = normal+war+thaicraft+ammunition
                         rows[rowIndex].status = record.status
                         rows[rowIndex].normalGuns = record.normalguns
                         rows[rowIndex].warGuns = record.warguns
@@ -287,11 +293,17 @@ module.exports = {
                         rows[rowIndex].etc = record.etc
                         rows[rowIndex].timestamp = timestamp
                         rows[rowIndex].specialcase = record.specialcase
+                        rows[rowIndex].totalFound = total
                         linemessage=`\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: ขณะเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nพบของกลาง:\nอาวุธปืนทั่วไป:${record.normalguns}\nอาวุธปืนสงคราม:${record.warguns}\nอาวุธปืนไทยประดิษฐ์:${record.thaicraftguns}\nเครื่องยุทธภัณฑ์:${record.ammunition}\nอื่นๆ:${record.etc}\n\nภาพถ่ายประกอบการรายงาน:กุเกิ้ลไดร์ฟโฟลเดอร์}`
                         this.sendimages(placeid, status, files, folderId)
                         break;
 
                     case 'after':
+                         normal = parseInt(record.normalguns)
+                         war = parseInt(record.warguns)
+                        thaicraft = parseInt(record.thaicraftguns)
+                        ammunition = parseInt(record.ammunition)
+                        total = normal+war+thaicraft+ammunition
                         rows[rowIndex].status = record.status
                         rows[rowIndex].normalGuns = record.normalguns
                         rows[rowIndex].warGuns = record.warguns
@@ -301,6 +313,7 @@ module.exports = {
                         rows[rowIndex].etc = record.etc
                         rows[rowIndex].timestamp = timestamp
                         rows[rowIndex].specialcase = record.specialcase
+                        rows[rowIndex].totalFound = total
                         linemessage=`\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: หลังเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nพบของกลาง:\nอาวุธปืนทั่วไป:${record.normalguns}\nอาวุธปืนสงคราม:${record.warguns}\nอาวุธปืนไทยประดิษฐ์:${record.thaicraftguns}\nเครื่องยุทธภัณฑ์:${record.ammunition}\nอื่นๆ:${record.etc}\n\nภาพถ่ายประกอบการรายงาน:กุเกิ้ลไดร์ฟโฟลเดอร์}`
                         this.sendimages(placeid, status, files, folderId)
                         break;
