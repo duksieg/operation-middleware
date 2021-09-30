@@ -297,7 +297,7 @@ module.exports = {
                         rows[rowIndex].criminal = record.criminal
                         rows[rowIndex].etc = record.etc
                         rows[rowIndex].timestamp = timestamp
-                        rows[rowIndex].specialcase = record.specialcase.toString()
+                        rows[rowIndex].specialcase = record.specialcase
                         rows[rowIndex].totalFound = total
                         linemessage=`\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: ขณะเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nพบของกลาง:\nอาวุธปืนทั่วไป:${record.normalguns}\nอาวุธปืนสงคราม:${record.warguns}\nอาวุธปืนไทยประดิษฐ์:${record.thaicraftguns}\nเครื่องยุทธภัณฑ์:${record.ammunition}\nอื่นๆ:${record.etc}\n\nภาพถ่ายประกอบการรายงาน:${ rows[rowIndex].folderID}}`
                         this.sendimages(placeid, status, files, folderId)
@@ -318,7 +318,7 @@ module.exports = {
                         rows[rowIndex].criminal = record.criminal
                         rows[rowIndex].etc = record.etc
                         rows[rowIndex].timestamp = timestamp
-                        rows[rowIndex].specialcase = record.specialcase.toString()
+                        rows[rowIndex].specialcase = record.specialcase
                         rows[rowIndex].totalFound = total
                         linemessage=`\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: หลังเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nพบของกลาง:\nอาวุธปืนทั่วไป:${record.normalguns}\nอาวุธปืนสงคราม:${record.warguns}\nอาวุธปืนไทยประดิษฐ์:${record.thaicraftguns}\nเครื่องยุทธภัณฑ์:${record.ammunition}\nอื่นๆ:${record.etc}\n\nภาพถ่ายประกอบการรายงาน:${ rows[rowIndex].folderID}}`
                         this.sendimages(placeid, status, files, folderId)
