@@ -331,7 +331,7 @@ module.exports = {
                     let jsonData = {
                         message: linemessage,
                       }
-                 let response = await linesender.linenoti(jsonData,placeid)
+                // let response = await linesender.linenoti(jsonData,placeid)
                 }
                 return result
             } catch (err) {
