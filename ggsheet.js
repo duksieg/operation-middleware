@@ -278,6 +278,7 @@ module.exports = {
                     case 'before':
                         rows[rowIndex].status = record.status
                         rows[rowIndex].timestamp = timestamp
+                        rows[rowIndex].specialcase = record.specialcase
                         linemessage=`\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: ก่อนเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nภาพถ่ายประกอบการรายงาน:กุเกิ้ลไดร์ฟโฟลเดอร์} `
                         this.sendimages(placeid, status, files, folderId)
                         break;
