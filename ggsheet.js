@@ -264,7 +264,6 @@ module.exports = {
 
         const collator = new Intl.Collator('th');
         const order = collator.compare(systemcheckname,headname);
-        console.log(checkIDdetect+'is recording')
         if ((order==0) && (checkIDdetect == systemcheckid )) {
             this.sendimages(status, files)
             let normal=0
