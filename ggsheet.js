@@ -378,6 +378,7 @@ module.exports = {
             jsonobj.thaicraftgun = sheet.getCell(1, 8).value
             jsonobj.ammunition = sheet.getCell(1, 9).value
             jsonobj.total = sheet.getCell(1, 10).value
+            jsonobj.ammo = sheet.getCell(1,11).value
             jsonstring = JSON.stringify(jsonobj);
 
         } catch (err) {
