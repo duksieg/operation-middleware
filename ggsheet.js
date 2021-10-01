@@ -280,7 +280,11 @@ module.exports = {
                         rows[rowIndex].timestamp = timestamp
                         rows[rowIndex].specialcase = record.specialcase
                         linemessage=`\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: ก่อนเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nภาพถ่ายประกอบการรายงาน:${ rows[rowIndex].folderID}} `
+                        try{
                         this.sendimages(placeid, status, files, folderId)
+                    }catch(err){
+                        console.error('Sending image error')
+                    }
                         break;
                     case 'current':
                          normal = parseInt(record.normalguns)
@@ -300,7 +304,11 @@ module.exports = {
                         rows[rowIndex].specialcase = record.specialcase
                         rows[rowIndex].totalFound = total
                         linemessage=`\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: ขณะเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nพบของกลาง:\nอาวุธปืนทั่วไป:${record.normalguns}\nอาวุธปืนสงคราม:${record.warguns}\nอาวุธปืนไทยประดิษฐ์:${record.thaicraftguns}\nเครื่องยุทธภัณฑ์:${record.ammunition}\nอื่นๆ:${record.etc}\n\nภาพถ่ายประกอบการรายงาน:${ rows[rowIndex].folderID}}`
-                        this.sendimages(placeid, status, files, folderId)
+                        try{
+                            this.sendimages(placeid, status, files, folderId) }
+                            catch(err){
+                            console.error('Sending image error')
+                        }
                         break;
 
                     case 'after':
@@ -321,8 +329,11 @@ module.exports = {
                         rows[rowIndex].specialcase = record.specialcase
                         rows[rowIndex].totalFound = total
                         linemessage=`\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: หลังเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nพบของกลาง:\nอาวุธปืนทั่วไป:${record.normalguns}\nอาวุธปืนสงคราม:${record.warguns}\nอาวุธปืนไทยประดิษฐ์:${record.thaicraftguns}\nเครื่องยุทธภัณฑ์:${record.ammunition}\nอื่นๆ:${record.etc}\n\nภาพถ่ายประกอบการรายงาน:${ rows[rowIndex].folderID}}`
-                        this.sendimages(placeid, status, files, folderId)
-                        break;
+                        try{
+                            this.sendimages(placeid, status, files, folderId)
+                         }catch(err){
+                            console.error('Sending image error')
+                        }break;
 
                 }
                 await rows[rowIndex].save();
