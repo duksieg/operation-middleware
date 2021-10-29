@@ -118,7 +118,22 @@ app.get("/createfolder", async (req, res) => {
     res.sendStatus(200)
 })
 
+app.get("/createslide",async (req,res)=>{
+    let respond = await util.getRowdata()
+    let jsonrecords = respond
+    for (let index = 0; index < 2; index++) {
+        const element = jsonrecords[index]; 
+        let newslideid  
+        try{
+            newslideid = await updateslide.dupslide(element)
+            let response = await updateslide.replacetemplate(element,newslideid)
+        }catch(err){
+            console.error(element.pointno+'error :'+ err)
+        }
+    }
+    res.sendStatus(200)
 
+})
 
 app.get('/testlistfile', async (req, res) => {
 try{
