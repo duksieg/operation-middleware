@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ยิ่งเจริญ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+
+    <!-- Nav Section-->
+    <nav class="navbar navbar-expand-lg navbar navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand text-center" href="#">ยิ่งเจริญ</a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                </ul>
+            </div>
+        </div>
+    </nav><br><br>
+    <div class="container">
+        <!-- Header Section-->
+        <div class="card-body">
+            <form action="/casingrecord" method="POST" encType="multipart/form-data" ref='uploadForm'>
+
+                <!--Casor-->
+                    <div class="card">
+                        <div class="card-header">
+                            ข้อมูลการบันทึก
+                        </div>
+                        <div class="card-body">
+                            <div class="form-control">
+                                <div class="row d-flex my-2">
+                                    <div class="col me-3">
+                                        <label for="placeid">รหัสจุดค้น</label>
+                                        <input list="point" class="form-control" id="placeid" name="placeid"
+                                            placeholder="รหัสจุดค้น">
+                                        <datalist id="point">
+                                            <% for(i=0;i<point.length;i++) {%>
+                                                <option value="<%=point[i].trim()%>">
+                                                    <%}%>
+                                        </datalist>
+                                    </div>
+                                    <div class="col">
+                                        <label for="casingname">ผู้ทำการเคสซิ่ง</label>
+                                        <input type='text' class='form-control' id='casingname' name="casingname"
+                                            placeholder="ส.ต.ต.xxxxxx xxxxxx">
+                                    </div>
+                                </div>
+                                <div class="row d-flex my-2">
+                                    <div class="col me-3">
+                                        <label for="casingdate">วันที่ทำการเคสซิ่ง</label>
+                                        <input type='date' class='form-control' id='casingdate' name="casingdate">
+                                    </div>
+
+                                    <div class="col">
+                                        <label for="casingtel">เบอร์โทรติดต่อ</label>
+                                        <input type="text" class="form-control" id='casingtel' name="casingtel"
+                                            placeholder="xxx-xxxxxxx">
+                                    </div>
+                                </div>
+                                <div class="d-flex my-2">
+                                    <div class="form-check form-check-inline">
+                                        <input type="radio" id="foundedtarget" name="istargetfounded" value="true"">
+                                        <label for="foundedtarget">พบเป้าหมาย</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input type="radio" id="notfoundtatger" name="istargetfounded" value="false">
+                                        <label for="notfoundtatger">ไม่พบเป้าหมาย</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                <!-- target information-->
+                
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            ข้อมูลเป้าหมาย
+                        </div>
+                        <div class="card-body">
+                            <div class="row d-flex">
+                                <div class="col">
+                                    <label for="targetname">ชื่อ-นามสกุล</label>
+                                    <input type="text" id="targetname" class='form-control' name="targetname"
+                                        placeholder="ชื่อ นามสกุล ไม่มีคำนำหน้า">
+                                </div>
+                                <div class="col">
+                                    <label for="targetid">เลขบัตรประชาชน</label>
+                                    <input type="text" id='targetid' name='targetid' class="form-control"
+                                        placeholder="1234567890123" pattern="[0-9]{13}">
+                                </div>
+                            </div>
+
+                            <div class="row d-flex">
+                                <div class="col">
+                                    <label for="address14">ที่อยู่ตาม ทร.14</label>
+                                    <input type="text" id="address14" class="form-control" name="address14"
+                                        placeholder="123 หมู่1 ต.ทุ่งนา อ.เมือง จ.กรุงเทพมหานคร 10900">
+                                </div>
+                                <div class="col">
+                                    <label for="latlng14">พิกัดตาม ทร.14</label>
+                                    <input type="text" id="latlng14" class="form-control" name="latlng14"
+                                        placeholder="123.344444,11.123456 เลขหลังทศนิยม 6 ตำแหน่ง">
+                                </div>
+
+                            </div>
+
+                            <div class="row d-flex">
+                                <div class="col">
+                                    <label for="addresscurrent">ที่อยู่ปัจจุบัน</label>
+                                    <input type="text" id="addresscurrent" class="form-control" name="addresscurrent"
+                                        placeholder="123 หมู่1 ต.ทุ่งนา อ.เมือง จ.กรุงเทพมหานคร 10900">
+                                </div>
+                                <div class="col">
+                                    <label for="latlngcurrent">พิกัดที่อยู่ปัจจุบัน</label>
+                                    <input type="text" id="latlngcurrent" class="form-control" name="latlngcurrent"
+                                        placeholder="123.344444,11.123456 เลขหลังทศนิยม 6 ตำแหน่ง">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col">
+                                    <label for="targettel">เบอร์โทรศัพท์</label>
+                                    <input type="tel" name="targettel" id="targettel" class="form-control"
+                                        placeholder="xxx-xxxxxxx">
+                                </div>
+                                <div class="col">
+                                    <label for="behavior">พฤติการณ์</label>
+                                    <input type="text" class="form-control" name="behavior" id="behavior"
+                                        placeholder="ซื้ออาวุธปืน">
+                                </div>
+                            </div>
+                            <div class="row d-flex">
+                                <h3 class="my-2">Social</h3>
+                                <div class="col">
+                                    <label for="facebooktarget">Facebook</label>
+                                    <input type="text" name="facebooktarget" id="facebooktarget" class="form-control"
+                                        placeholder="ถ้ามีมากกว่า 1 ใช้เครื่องหมาย , คั่นระหว่างข้อมูล">
+                                </div>
+                                <div class="col">
+                                    <label for="linetarget">Line</label>
+                                    <input type="text" name="linetarget" class="form-control" id="linetarget"
+                                        placeholder="ถ้ามีมากกว่า 1 ใช้เครื่องหมาย , คั่นระหว่างข้อมูล">
+                                </div>
+                            </div>
+                            <div class="row d-flex">
+                                <div class="col">
+                                    <label for="instagramtarget">Instagram</label>
+                                    <input type="text" name="instagramtarget" class="form-control" id="instagramtarget"
+                                        placeholder="ถ้ามีมากกว่า 1 ใช้เครื่องหมาย , คั่นระหว่างข้อมูล">
+                                </div>
+                                <div class="col">
+                                    <label for="twittertarget">Twitter</label>
+                                    <input type="text" name="twittertarget" id="twittertarget" class="form-control"
+                                        placeholder="ถ้ามีมากกว่า 1 ใช้เครื่องหมาย , คั่นระหว่างข้อมูล">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        ข้อมูลพาหนะ
+                    </div>
+                    <div class="card-body">
+                        <div class="row ms-3 my-2 text-danger">
+                            **กรอกข้อมูลพาหนะแต่ละคันใช้ / เพื่อคั่นข้อความ และใช้ , คั่นกรณีมีข้อมูลพาหนะมากกว่า 1 คัน เรียงลำดับเป็น ยี่ห้อ/รุ่น/สี/ทะเบียน
+                        </div>
+                        <div class="row d-flex">
+                            <div class="col">
+                                <label for="car">ข้อมูลรถยนต์</label>
+                                <textarea type="text" name="car" id="car" rows="3" class="form-control" placeholder="honda/city/ดำ แดง/1กก 9999 กทม , honda/accord/เทา/2กก 9999 ราชบุรี"></textarea>
+                            </div>
+                            <div class="col">
+                                <label for="car">ข้อมูลรถจักรยานยนต์</label>
+                                <textarea type="text" name="motorcycle" id="motorcycle" rows="3" class="form-control" placeholder="honda/wave100/ดำ แดง/1กก 999 กทม , yamaha/mio/เทา/2กก 999 ราชบุรี"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Images-->
+                
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            รูปภาพประกอบ
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <label for="personalimage14" class="form-label">รูปภาพเป้าหมายจากทร.14</label>
+                                <input class="form-control" type="file" name="personalimage14"
+                                    accept="image/jpeg,image/png,video/*" id="personalimage14" />
+                            </div>
+                            <div class="row mt-2">
+                                <label for="image14" class="form-label">ภาพหน้าทร.14</label>
+                                <input class="form-control" type="file" name="image14"
+                                    accept="image/jpeg,image/png,video/*" id="image14" />
+                            </div>
+                            <div class="row mt-2">
+                                <label for="maptohome" class="form-label">รูปภาพแผนที่บ้านเป้าหมาย</label>
+                                <input class="form-control" type="file" name="maptohome"
+                                    accept="image/jpeg,image/png,video/*" id="maptohome" multiple />
+                            </div>
+                            <div class="row mt-2">
+                                <label for="imagehome" class="form-label">ภาพถ่ายบ้าน</label>
+                                <input class="form-control" type="file" name="imagehome"
+                                    accept="image/jpeg,image/png,video/*" id="imagehome" multiple />
+                            </div>
+                            <div class="row mt-2">
+                                <label for="imagemobile" class="form-label">ภาพถ่ายพาหนะ</label>
+                                <input class="form-control" type="file" name="imagemobile"
+                                    accept="image/jpeg,image/png,video/*" id="imagemobile" multiple />
+                            </div>
+                        </div>
+                    </div>
+                
+
+
+                <!--group header-->
+                
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            รายชื่อชุดปฏิบัติการ
+                        </div>
+                        <div class="card-body">
+                            <div class="row d-flex">
+                                <div class="col">
+                                    <label for="headername">หัวหน้าชุดปฏิบัติการ/ผู้ถือหมาย</label>
+                                    <input type="text" name="headername" id="headername" class="form-control"
+                                        placeholder="ร.ต.อ.xxxx xxxxxx">
+                                </div>
+                                <div class="col">
+                                    <label for="headerposition">ตำแหน่ง</label>
+                                    <input type="text" name="headerposition" id="headerposition" class="form-control"
+                                        placeholder="ระดับสัญญาบัตร เช่น รอง สว.ป.">
+                                </div>
+                                <div class="col">
+                                    <label for="headertel">เบอร์โทรติดต่อ</label>
+                                    <input type="text" name="headertel" id="headertel" class="form-control"
+                                        placeholder="xxx-xxxxxxx">
+                                </div>
+                            </div>
+                            <div class="row d-flex">
+                                <div class="col">
+                                    <label for="reportername">ผู้ทำรายงาน</label>
+                                    <input type="text" name="reportername" id="reportername" class="form-control">
+                                </div>
+                                <div class="col">
+                                    <label for="reporterposition">ตำแหน่ง</label>
+                                    <input type="text" name="reporterposition" id="reporterposition"
+                                        class="form-control">
+                                </div>
+                                <div class="col">
+                                    <label for="reportertel">เบอร์โทรติดต่อ</label>
+                                    <input type="text" name="reportertel" id="reportertel" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row d-flex">
+                                <div class="col">
+                                    <label for="photographername">ถ่ายภาพ</label>
+                                    <input type="text" name="photographername" id="photographername"
+                                        class="form-control">
+                                </div>
+                                <div class="col">
+                                    <label for="photographerposition">ตำแหน่ง</label>
+                                    <input type="text" name="photographerposition" id="photographerposition"
+                                        class="form-control">
+                                </div>
+                                <div class="col">
+                                    <label for="photographertel">เบอร์โทรติดต่อ</label>
+                                    <input type="text" name="photographertel" id="photographertel" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row d-flex">
+                                <div class="col">
+                                    <label for="pointername">คนชี้เป้า</label>
+                                    <input type="text" name="pointername" id="pointername" class="form-control">
+                                </div>
+                                <div class="col">
+                                    <label for="pointerposition">ตำแหน่ง</label>
+                                    <input type="text" name="pointerposition" id="pointerposition" class="form-control">
+                                </div>
+                                <div class="col">
+                                    <label for="pointertel">เบอร์โทรติดต่อ</label>
+                                    <input type="text" name="pointertel" id="pointertel" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row d-flex">
+                                <div class="col">
+                                    <label for="op1name">ผู้ปฏิบัติ</label>
+                                    <input type="text" name="op1name" id="op1name" class="form-control">
+                                </div>
+                                <div class="col">
+                                    <label for="op1position">ตำแหน่ง</label>
+                                    <input type="text" name="op1position" id="op1position" class="form-control">
+                                </div>
+                                <div class="col">
+                                    <label for="op1tel">เบอร์โทรติดต่อ</label>
+                                    <input type="text" name="op1tel" id="op1tel" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row d-flex">
+                                <div class="col">
+                                    <label for="op2name">ผู้ปฏิบัติ</label>
+                                    <input type="text" name="op2name" id="op2name" class="form-control">
+                                </div>
+                                <div class="col">
+                                    <label for="op2position">ตำแหน่ง</label>
+                                    <input type="text" name="op2position" id="op2position" class="form-control">
+                                </div>
+                                <div class="col">
+                                    <label for="op2tel">เบอร์โทรติดต่อ</label>
+                                    <input type="text" name="op2tel" id="op2tel" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+
+
+                <!-- casing inform -->
+                
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            ผลการเคสซิ่ง
+                        </div>
+                        <div class="card-body">
+                            <div class="row d-flex my-2">
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" id="approved" name="approved" value="true">
+                                    <label for="approved" class="me-4">เห็นควรเข้าค้น</label>
+                                    <input type="radio" id="notapproved" name="approved" value="false">
+                                    <label for="notapproved">ไม่เห็นควรเข้าค้น</label>
+                                </div>
+                            </div>
+                            <span>
+                                <label for='reason'>เหตุผลการเข้าค้น</label>
+                                <input type="text" class="form-control" id='reason' name="reason"
+                                    placeholder="เชื่อได้ว่าเป้าหมายอาศัยอยู่จริง,เป้าหมายไม่อาศัยอยู่ ณ ปัจจุบัน">
+                            </span>
+                            <div class="row d-flex">
+                                <div class="col">
+                                    <label for="moreinformation">ข้อสังเกต/แนะนำเพิ่มเติมจากการเคสซิ่ง</label>
+                                    <input type="text" name="moreinformation" id="moreinformation" class="form-control">
+                                </div>
+                                <div class="col">
+                                    <label for="requiredstuff">สิ่งที่ต้องตรวจค้น</label>
+                                    <input type="text" name="requiredstuff" id='requiredstuff' class="form-control">
+                                </div>
+                            </div>
+                            <div class="row d-flex">
+                                <div class="col">
+                                    <h6 class="me-3"> ต้องการหน่วยสนับสนุนใด </h6>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" id="hanuman" name="hanuman"
+                                            value="true">
+                                        <label class="form-check-label" for="hanuman">หนุมาร</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" id="drone" name="drone"
+                                            value="true">
+                                        <label class="form-check-label" for="drone">โดรน</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" id="xry" name="xry"
+                                            value="true">
+                                        <label class="form-check-label" for="xry">XRY</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" id="pr" name="pr" value="true">
+                                        <label class="form-check-label" for="pr">ประชาสัมพันธ์</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+
+
+                <!--Submit btn-->
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary ">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -16,13 +16,13 @@ const drive = google.drive({
   auth: authcreds
 });
 
-const presentationID = '1F_8BpDtLQF5fiAd2RbL0NRg5YCh3zzPxbcedRrUazgI'
-const templateslide = 'p'
+const presentationIDTemplate = '1sbZZ-yakfuIdMzTxyswjaOvl5-k5jo7FqpbWdi8HOGs'
 
 module.exports = {
+
   listslide: listslides = () => {
     slide.presentations.get({
-      presentationId: presentationID,
+      presentationId: presentationIDTemplate,
     }, (err, res) => {
       if (err) return console.log('The API returned an error: ' + err);
       const length = res.data.slides.length;
@@ -34,59 +34,73 @@ module.exports = {
   },
 
 
-
-  updatetext: updatetext = async () => {
-    let pointname = 'รัฐวิชญ์  '
-    let pointno = '1A1'
-    var newIDs = ["copiedSlide_001", "copiedSlide_002", "copiedSlide_003"]
-    // find template slide or first slide
-    // try{
-    // let findtemplate =await  slide.presentations.get(
-    //   {
-    //     presentationId: presentationID,
-    //     fields: "slides(objectId)",
-    //   })
-    //   findtemplate.data.slides[0].objectId
-    // }catch(err){
-    //   console.error('could not load template slide'+err)
-    // }
-    
-    for (let index = 0; index < newIDs.length; index++) {
-      let element = newIDs[index];
-    try {
-      let requests = [ 
-        {
-        duplicateObject: {
-          objectId: templateslide
-        }
+  replacetemplate: replacetemplate =(personal, templateid) => {
+    let requests = [{
+      replaceAllText: {
+        containsText: {
+          text: '{{address}}',
+          matchCase: true,
+        },
+        replaceText: personal.pointlatlng,
       },
-      {
-        replaceAllText: {
-           containsText: {
-             text: '{{point-name}}',
-             matchCase: true
-           },
-           replaceText: element
-        }
-      }]  
-
-      slide.presentations.batchUpdate({
-        presentationId:presentationID,
-        resource:{
-          requests
-        }
-      },(err,res)=>{
-        if (err) {
-          console.log(err);
-          return;
-        }
-        console.log(res.data);
-      })
-    }
-  catch (err) {
-        console.error(err)
+    }, {
+      replaceAllText: {
+        containsText: {
+          text: '{{fullname}}',
+          matchCase: true,
+        },
+        replaceText: personal.fullname,
+      },
+    }, {
+      replaceAllText: {
+        containsText: {
+          text: '{{idno}}',
+          matchCase: true,
+        },
+        replaceText: personal.idcard,
+      },
+    }, {
+      replaceAllShapesWithImage: {
+        containsText: {
+          text: '{{personal-image}}',
+          matchCase: true,
+        },
+        imageUrl:'https://drive.google.com/uc?id='+personal.criminalimage,
+        imageReplaceMethod: 'CENTER_INSIDE',
       }
-  }
-}
-    
+    }]
+
+    slide.presentations.batchUpdate({
+      presentationId: templateid,
+      resource: {
+        requests,
+      },
+    }, (err, batchUpdateResponse) => {
+      if (err) console.error(err)
+      let result = batchUpdateResponse;
+      return result
+    })
+  },
+
+  
+  dupslide: dupslide = async (personal) => {
+
+    //set filename
+    let request = {
+      name: personal.pointno,
+    };
+
+    //copy slide
+    try {
+      let driverespond = await drive.files.copy({
+        fileId: presentationIDTemplate,
+        resource: request
+      })
+        return templateid = driverespond.data.id
+    }catch(err){
+      console.error(err)
+    }
+
+  },
+
 }

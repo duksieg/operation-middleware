@@ -20,6 +20,14 @@ app.get("/", async (req, res) => {
     res.render('index', { point: map.get('point'), agent: map.get('agentname') })
 })
 
+app.get('/casing',async (req,res)=>{
+    res.render('casingmain')
+})
+
+app.get('/casingform', async (req,res) => {
+    res.render('casing',{ point: map.get('point'), agent: map.get('agentname') })
+})
+
 app.get('/arrange',async (req,res)=>{
     let temparry = []
   let agname =  map.get('agentname')
@@ -46,7 +54,29 @@ app.post("/saverecord", async (req, res) => {
         console.error(res.checkstatus+" : "+err)
         res.render('notmatch', { reason: err })
     }
-   
+})
+
+app.post('/casingrecord',(req,res)=>{
+    console.log(req.body)
+    console.log(req.files)
+    res.send('ok')
+})
+
+app.get("/createslide",async (req,res)=>{
+    let respond = await util.getRowdata()
+    let jsonrecords = respond
+    for (let index = 0; index < 2; index++) {
+        const element = jsonrecords[index]; 
+        let newslideid  
+        try{
+            newslideid = await slideutil.dupslide(element)
+            let response = await slideutil.replacetemplate(element,newslideid)
+        }catch(err){
+            console.error(element.pointno+'error :'+ err)
+        }
+    }
+    res.sendStatus(200)
+
 })
 
 app.get("/info", async (req, res) => {
@@ -54,19 +84,7 @@ app.get("/info", async (req, res) => {
     res.send(total)
 })
 
-// app.post("/imagesbyuser", async (req, res) => {
-//     //let folderid = req.body.records
-//     //let jsonstr = JSON.stringify(req) 
 
-//     console.log(req)
-//     // let resp = await util.getimages(folderid,'1PNFS7vp9ReWMHBROjIhYg70qGGqaASb5') 
-//     // let jsonObj = new Object()
-//     // let jsonstring
-//     // jsonObj.records = resp
-//     // jsonstring = JSON.stringify(jsonObj)
-//     // console.log(jsonstring)
-//     res.send(req.body.username)
-// })
 
 app.get('/slide',async (req,res)=>{
     let resp = slideutil.updatetext()
@@ -142,6 +160,20 @@ app.get('/testlistfolder', async (req, res) => {
         console.error(err)
     }
     })
+
+    // app.post("/imagesbyuser", async (req, res) => {
+//     //let folderid = req.body.records
+//     //let jsonstr = JSON.stringify(req) 
+
+//     console.log(req)
+//     // let resp = await util.getimages(folderid,'1PNFS7vp9ReWMHBROjIhYg70qGGqaASb5') 
+//     // let jsonObj = new Object()
+//     // let jsonstring
+//     // jsonObj.records = resp
+//     // jsonstring = JSON.stringify(jsonObj)
+//     // console.log(jsonstring)
+//     res.send(req.body.username)
+// })
 
 
 function initialload() {

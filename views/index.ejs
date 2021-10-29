@@ -32,12 +32,12 @@
                 ข้อมูลจุดเข้าค้น
             </div>
             <div class="card-body">
-                <form action="/saverecord"  method="POST" encType="multipart/form-data" ref='uploadForm'>
+                <form action="/saverecord" method="POST" encType="multipart/form-data" ref='uploadForm'>
                     <div class="row">
                         <div class="col-5">
                             <label for="formGroupStatusInput">สถานะเข้าค้น</label>
                             <select class="form-select mt-2" name="status" id="status" aria-label="select status"
-                                onchange="showFound(this)" required>
+                                onchange="showFound(this)">
                                 <option disabled selected value="">กรุณาเลือกสถานะการบันทึก</option>
                                 <option value="before">ก่อนเข้าค้น</option>
                                 <option value="current">กำลังค้น</option>
@@ -47,8 +47,8 @@
                                 กรุณาเลือกสถานะการเข้าค้น
                             </div>
                         </div>
-                        <div class="col-4 align-self-end">
-                            <div class="form-check form-check-inline" for="flexCheckDefault" >
+                        <div class="col align-self-end">
+                            <div class="form-check form-check-inline" for="flexCheckDefault">
                                 <input class="form-check-input" type="checkbox" value="true" name="specialcase"
                                     id="flexCheckDefault">
                                 <label class="form-check-label" for="flexCheckDefault">
@@ -62,7 +62,7 @@
                             <div class="form-group">
                                 <label for="formGroupExampleInput">รหัสจุดค้น</label>
                                 <input list="point" class="form-control" id="placeid" name="placeid"
-                                    placeholder="รหัสจุดค้น" required>
+                                    placeholder="รหัสจุดค้น">
                                 <datalist id="point">
                                     <% for(i=0;i<point.length;i++) {%>
                                         <option value="<%=point[i].trim()%>">
@@ -73,12 +73,11 @@
                     </div>
 
                     <div class="row ">
-                        <div>
                             <div class="col-5">
                                 <div class="form-group">
-                                    <label for="formGroupHeadername">ชื่อหัวหน้าจุด</label>
+                                    <label for="formGroupHeadername">ชื่อหัวหน้าชุด</label>
                                     <input list="agent" class="form-control" id="name" name="name"
-                                        placeholder="ชื่อหัวหน้าจุด ยศ ชื่อ-นามสกุล" required>
+                                        placeholder="ชื่อหัวหน้าจุด ยศ ชื่อ-นามสกุล">
                                     <datalist id="agent">
                                         <% for(i=0;i<agent.length;i++) {%>
                                             <option value="<%=agent[i].trim()%>">
@@ -86,23 +85,12 @@
                                     </datalist>
                                 </div>
                             </div>
-                        </div>
                     </div>
-                    <!-- <div class="col">
-                                <div class="form-group">
-                                    <label for="formGroupHeadertel">เบอร์โทรศัพท์ติดต่อ</label>
-                                    <input type="text" class="form-control" id="tel" name="tel"
-                                        placeholder="ใส่เบอร์เต็ม 0999999999" required>
-                                </div>
-                            </div> -->
                     <div>
-
-                        <!-- <div class="form-group">
-                            <label for="reportText">รายงานสถานะการค้น</label>
-                            <textarea class="form-control" rows="10" name="reporttext" id="reporttext" required></textarea>
-                        </div> -->
-                        <label for="formFileMultiple" class="form-label">อัพโหลดรูปภาพหรือไฟล์วิดีโอ ขนาดไฟล์ไม่ควรเกิน 25MB และต้องส่งอย่างน้อย 1 รูปภาพ</label>
-                        <input class="form-control" onchange="checkfilesize()" type="file" name="filestore" accept="image/jpeg,image/png,video/*" id="images" multiple />
+                        <label for="formFileMultiple" class="form-label">อัพโหลดรูปภาพหรือไฟล์วิดีโอ ขนาดไฟล์ไม่ควรเกิน
+                            25MB และต้องส่งอย่างน้อย 1 รูปภาพ</label>
+                        <input class="form-control" onchange="checkfilesize()" type="file" name="filestore"
+                            accept="image/jpeg,image/png,video/*" id="images" multiple />
                         <div class="col-5" id="hidden_divFound" style="display:none;">
                             <label for="formGroupStatusInput">พบเจอสิ่งผิดกฎหมายหรือไม่</label>
                             <select class="form-select mt-2" name="isfound" id="isfound" aria-label="select found"
@@ -112,7 +100,6 @@
                                 <option value="notfound">ไม่พบ</option>
                             </select>
                         </div>
-
                     </div>
             </div>
         </div>
@@ -155,10 +142,10 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="inputNormal" class="col-sm-4 col-form-label">เครื่องยุทธภัณฑ์(ชิ้น)</label>
+                        <label for="inputNormal" class="col-sm-4 col-form-label">เครื่องกระสุน(นัด)</label>
                         <div class="col-sm-4">
-                            <input type="number" class="form-control" name="ammunition" id="ammunition" value="0"
-                                placeholder="ตัวอย่าง 10 ใส่เฉพาะตัวเลขเท่านั้น">
+                            <input type="number" class="form-control" name="ammo" id="ammo" value="0"
+                                placeholder="ตัวอย่าง 1000 ใส่เฉพาะตัวเลขเท่านั้น">
                         </div>
                     </div>
                     <div class="form-group row">
@@ -166,15 +153,22 @@
                         <div class="col-sm-4">
                             <input type="text" class="form-control" name="etc" id="etc"
                                 placeholder="เช่นยาบ้า 10,000 เม็ด">
-
                         </div>
                     </div>
                 </div>
-
+                <div class='card-footer'>
+                    <div class="form-group row">
+                        <label for="inputNormal" class="col-sm-4 col-form-label">เครื่องยุทธภัณฑ์(ชิ้น)</label>
+                        <div class="col-sm-4">
+                            <input type="number" class="form-control" name="ammunition" id="ammunition" value="0"
+                                placeholder="ตัวอย่าง 10 ใส่เฉพาะตัวเลขเท่านั้น">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <br>
-        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+        <button type="button" class="btn btn-primary btn-sm"  onclick="checkfield()"
             data-bs-target="#checkmodal">Submit</button>
         <!-- Modal -->
         <div class="modal fade" id="checkmodal" tabindex="-1" aria-labelledby="checkmodalLabel" aria-hidden="true">
@@ -191,13 +185,30 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="hideloading()" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideloading()"
+                            data-bs-dismiss="modal">Close</button>
                         <button type="submit" onclick="loading()" class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
             </div>
-
         </div>
+        <div class="modal fade" id="field0" tabindex='-1' aria-labelledby="field0Label" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    </div>
+                    <div class = "modal-body">
+                        <h6 class="modal-title text-center" id="field0Label" >กรุณากรอก สถานะเข้าค้น,รหัสจุดค้น,ชื่อหัวหน้าชุด ให้ครบถ้วน 
+                        </h6>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         </form>
     </div>
     </div>
@@ -207,7 +218,7 @@
 </html>
 <script type="text/javascript">
     function showFound(status) {
-        if (status.value == "after" || status.value=="current") {
+        if (status.value == "after" || status.value == "current") {
             document.getElementById('hidden_divFound').style.display = "block";
         } else {
             document.getElementById('hidden_divFound').style.display = "none";
@@ -215,47 +226,59 @@
         }
     }
 
-    
+    function checkfield() {
+        let status = document.getElementById('status')
+        let placeid  = document.getElementById('placeid')
+        let headname = document.getElementById('name')
+
+        let myModal = new bootstrap.Modal(document.getElementById('checkmodal'))
+        let modalalertfield  = new bootstrap.Modal(document.getElementById('field0'))
+        console.log(status.value +":"+placeid.value)
+        if(placeid.value =="" ||  headname.value =="" || status.value ==""){
+            modalalertfield.toggle()
+        }else{
+            myModal.toggle()
+        }
+
+    }
 
     function checkfilesize() {
         let fi = document.getElementById('images');
         // Check if any file is selected.
         let isover = false
-        if (fi.files.length > 0) 
-        {
-            if(fi.files.length > 5){
+        if (fi.files.length > 0) {
+            if (fi.files.length > 5) {
                 alert('สามารถส่งรูปได้สูงสุดไม่เกิน 5 รูป');
-                isover=true
-            }else{
+                isover = true
+            } else {
                 for (let i = 0; i <= fi.files.length - 1; i++) {
-                const fsize = fi.files.item(i).size;
-                const toMB = 1024*1024
-                const file = Math.round((fsize / toMB));
-                // The size of the file. 25MB
-                if (file >= 40) {
-                    alert(`ขนาดไฟล์ ${fi.files[i].name} มีขนาด ${file} MB ใหญ่เกินกว่าที่กำหนดกรุณาเลือกรูปใหม่`);
-                    isover=true
-                } 
+                    const fsize = fi.files.item(i).size;
+                    const toMB = 1024 * 1024
+                    const file = Math.round((fsize / toMB));
+                    // The size of the file. 25MB
+                    if (file >= 40) {
+                        alert(`ขนาดไฟล์ ${fi.files[i].name} มีขนาด ${file} MB ใหญ่เกินกว่าที่กำหนดกรุณาเลือกรูปใหม่`);
+                        isover = true
+                    }
+                }
             }
-            }
-            
-            if(isover) fi.value=""
+            if (isover) fi.value = ""
         }
-            
+
     };
 
     function loading() {
         document.getElementById('loading').style.display = "block";
     }
 
-    function hideloading (){
+    function hideloading() {
         document.getElementById('loading').style.display = "none";
     }
 
     function showGuns(isfound) {
         let select = document.getElementById('status');
         let value = select.options[select.selectedIndex].value;
-        if (isfound.value == 'found' && (value == 'after' || value =='current')) {
+        if (isfound.value == 'found' && (value == 'after' || value == 'current')) {
             document.getElementById('hidden_div').style.display = "block";
         } else {
             document.getElementById('hidden_div').style.display = "none";
