@@ -17,9 +17,6 @@ app.use(fileupload({
 
 
 function initialload() {
-    fs.mkdirSync('data', { recursive: true }, (err) => {
-        if (err) console.error(err)
-    })
    
     if (process.env.PORT == null || process.env.PORT == undefined) {
         app.listen(3000, (req, res) => console.log('app is running on 3000'))
@@ -32,9 +29,13 @@ function initialload() {
 
 var map = initialload()
 
-app.get("/", async (req, res) => {
+app.get("/",async(req,res)=>{
+res.render('index')
+})
+
+app.get("/operation", async (req, res) => {
     let loadpoint = await ggsheet.loadpoint()
-    res.render('index',{point:loadpoint.code,agent:loadpoint.headteam})
+    res.render('operation',{point:loadpoint.code,agent:loadpoint.headteam})
 })
 
 app.get('/casing', async (req, res) => {
