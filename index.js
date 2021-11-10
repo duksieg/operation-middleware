@@ -22,7 +22,7 @@ function initialload() {
     })
    
     if (process.env.PORT == null || process.env.PORT == undefined) {
-        app.listen(4000, (req, res) => console.log('app is running on 4000'))
+        app.listen(3000, (req, res) => console.log('app is running on 3000'))
     } else {
         app.listen(process.env.PORT, (req, res) => console.log('app is running'))
     }
