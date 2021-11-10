@@ -34,70 +34,35 @@ module.exports = {
         return alldata
     },
 
-    getfileid: async function getfileid(IDdetect) {
-        let parentid = '14IKnpv20XhDsKl4UTJqhm3mEjqRxH4Ik'
-        let result
-        try {
-            let resp = await drive.files.list({
-                q: `'${parentid}' in parents and name contains '${IDdetect}'`,
-                mimeType: 'image/jpeg,image/png',
-                spaces: 'drive'
-            })
-            // resp.data.files.forEach(element => {
-            //     console.log(element)
-            // });
-            result = resp.data.files
-            return result
-        }
-        catch (err) {
-            console.error(err)
-            return false
-        }
-
-
-    },
-    getfolderid: async function getfolderid(IDdetect) {
-        let parentid = '1jPdMgxWSH3FZzHALEAEjY5KtgJu0fEid'
-        let result
-        try {
-            let resp = await drive.files.list({
-                q: `'${parentid}' in parents and name contains '${IDdetect}'`,
-                mimeType: 'application/vnd.google-apps.folder',
-                spaces: 'drive',
-            })
-            // resp.data.files.forEach(element => {
-            //     console.log(element)
-            // });
-            result = resp.data.files
-            return result
-        }
-        catch (err) {
-            console.error(err)
-            return false
-        }
-
+    //load team
+    loadTeam: async function loadteam() {
 
     },
 
-    getimages: async function getimages(parentid, defaultid) {
-        if (parentid == null || parentid == undefined) parentid = defaultid
-        let result
+    loadpoint: async function loadpoint() {
+        let code = []
+        let headteam = []
+
         try {
-            let resp = await drive.files.list({
-                q: `'${parentid}' in parents`,
-                spaces: 'drive'
-            })
-            // resp.data.files.forEach(element => {
-            //     console.log(element)
-            // });
-            result = resp.data.files
-            return result
-        }
-        catch (err) {
+            let teaminform = await this.loadSheet('team')
+            for (let index = 0; index < teaminform.length; index++) {
+                const element = teaminform[index];
+                if (!code.includes(element.code) && (element.code != undefined)) {
+                    code.push(element.code)
+                }
+                if (!headteam.includes(element.header_name) && (element.header_name!=undefined)) {
+                    headteam.push(element.header_name)
+                }
+            }
+        } catch (err) {
             console.error(err)
-            return false
         }
 
+        let obj = {
+            'code': code,
+            'headteam': headteam
+        };
+        return obj
     },
 
     // get all datarow 
@@ -107,7 +72,7 @@ module.exports = {
             let allrow = await this.loadSheet()
             for (let index = 0; index < allrow.length; index++) {
                 let jobj = {
-                    pointno: allrow[index].IDdetect,
+                    pointno: allrow[index].code,
                     idcard: allrow[index].idcard,
                     coderank: allrow[index].code,
                     fullname: allrow[index].fullname,
@@ -127,7 +92,7 @@ module.exports = {
                     etc: allrow[index].etc,
                     dv: allrow[index].dv
                 }
-                if (allrow[index].IDdetect != null) arry.push(jobj)
+                if (allrow[index].code != null) arry.push(jobj)
             }
             return arry
         } catch (err) {
@@ -135,10 +100,10 @@ module.exports = {
         }
     },
 
-    //get main by row
+    //get casing by row
     getMainbyCode: async function getMainbyCode(code) {
         try {
-            let rows = await this.loadSheet('main')
+            let rows = await this.loadSheet('casing')
             let rowIndex
             for (let index = 0; index < rows.length; index++) {
                 if (rows[index].code == code) {
@@ -154,7 +119,7 @@ module.exports = {
     //get team by row
     getTeambyCode: async function getTeambyCode(code) {
         try {
-            let rows = await this.loadSheet('team')
+            let rows = await this.loadSheet('casing')
             let rowIndex
             for (let index = 0; index < rows.length; index++) {
                 if (rows[index].code == code) {
@@ -162,111 +127,6 @@ module.exports = {
                 }
             }
             return rows[rowIndex]
-        } catch (err) {
-            console.error(err)
-        }
-    },
-
-
-
-
-
-    createFolder: async function createFolder(pointname, rowindex) {
-        try {
-            var fileMetadata = {
-                'name': pointname,
-                'parents': ['1HILztWrd42JypUEtXGqr8lNtbeYXbvb1'],
-                'mimeType': 'application/vnd.google-apps.folder'
-            };
-            let res = await drive.files.create({
-                resource: fileMetadata,
-                fields: 'id,webViewLink'
-            })
-            let folderId = res.data.id
-            let folderlink = res.data.webViewLink
-            await this.updateFolderPermission(folderId)
-            await this.updateRowfolderID(folderlink, rowindex)
-
-            return folderlink
-
-        } catch (err) {
-            console.error(err)
-            return false
-        }
-
-    },
-
-    updateFolderPermission: async function updateFolderPermission(folderId) {
-
-        try {
-            const fileId = folderId;
-            //change file permisions to public.
-            await drive.permissions.create({
-                fileId: fileId,
-                requestBody: {
-                    role: 'reader',
-                    type: 'anyone',
-                },
-            });
-
-            //obtain the webview and webcontent links
-            const result = await drive.files.get({
-                fileId: fileId,
-                fields: 'webViewLink, webContentLink',
-            });
-            return (result);
-        } catch (error) {
-            return (error);
-        }
-
-    },
-
-    createimage: async function createImage(filename, filepath, mimetype, parentid) {
-        try {
-            await drive.files.create({
-                requestBody: {
-                    name: filename,
-                    'parents': [parentid],
-                },
-                media: {
-                    mimeType: mimetype,
-                    body: fs.createReadStream(filepath),
-                }
-            });
-            return true
-        }
-        catch (err) {
-            console.error(err)
-            return false
-        }
-    },
-
-    sendimages: async function sendimages(placeid, status, files, folderId) {
-
-        if (files != null || files != undefined) {
-            if (Array.isArray(files)) {
-                for (let index = 0; index < files.length; index++) {
-                    let filenametosend = placeid + "_" + status + "_" + files[index].name
-                    let filepath = files[index].tempFilePath
-                    this.createimage(filenametosend, filepath, files[index].mimetype, folderId)
-                }
-            } else {  //if not array = 1file
-                let filenametosend = placeid + "_" + status + "_" + files.name
-                let filepath = files.tempFilePath
-                this.createimage(filenametosend, filepath, files.mimetype, folderId)
-            }
-        } else {
-            return false
-        }
-    },
-
-    updateRowfolderID: async function updateRowfolderID(linkfolderid, pointname) {
-
-        try {
-            let rows = await this.loadSheet()
-            rows[rowindex].folderID = linkfolderid
-            await rows[rowindex].save();
-            return true
         } catch (err) {
             console.error(err)
         }
@@ -310,10 +170,12 @@ module.exports = {
     },
 
     updateCasingRow: async function updateCasingRow(formdata) {
+        let date = new Date().toLocaleDateString("th-TH", { timeZone: 'Asia/Bangkok' })
+        let time = new Date().toLocaleTimeString("th-TH", { timeZone: 'Asia/Bangkok' })
         try {
             let result
-            let teamupdated =null
-            let rows = await this.loadSheet('main')
+            let teamupdated = null
+            let rows = await this.loadSheet('casing')
             let code = formdata.code
             let rowIndex
             for (let index = 0; index < rows.length; index++) {
@@ -322,56 +184,59 @@ module.exports = {
                 }
             }
             //set value
-            rows[rowIndex].targetfullname = formdata.targetname
-            rows[rowIndex].idno = formdata.targetid
-            rows[rowIndex].targettel = formdata.targettel
-            rows[rowIndex].behavior = formdata.behavior
-            rows[rowIndex].address14 = formdata.address14
-            rows[rowIndex].moo14 = formdata.moo14
-            rows[rowIndex].subdistrict14 = formdata.subdistrict14
-            rows[rowIndex].district14 = formdata.district14
-            rows[rowIndex].province14 = formdata.province14
-            rows[rowIndex].zipcode14 = formdata.zipcode14
-            rows[rowIndex].latlng14 = formdata.latlng14
-            rows[rowIndex].addresscurrent = formdata.addresscurrent
-            rows[rowIndex].moocurrent = formdata.moocurrent
-            rows[rowIndex].subdistrictcurrent = formdata.subdistrictcurrent
-            rows[rowIndex].districtcurrent = formdata.districtcurrent
-            rows[rowIndex].provincecurrent = formdata.provincecurrent
-            rows[rowIndex].zipcodecurrent = formdata.zipcodecurrent
-            rows[rowIndex].latlngcurrent = formdata.latlngcurrent
-            rows[rowIndex].facebook = formdata.facebooktarget
-            rows[rowIndex].instagram = formdata.instagramtarget
-            rows[rowIndex].line = formdata.linetarget
-            rows[rowIndex].twitter = formdata.twittertarget
-            rows[rowIndex].hanuman = formdata.hanuman
-            rows[rowIndex].drone = formdata.drone
-            rows[rowIndex].xry = formdata.xry
-            rows[rowIndex].pr = formdata.pr
-            rows[rowIndex].casingname = formdata.casingname
-            rows[rowIndex].casingtel = formdata.casingtel
-            rows[rowIndex].car = formdata.car
-            rows[rowIndex].motorcycle = formdata.motorcycle
-            rows[rowIndex].moreinformation = formdata.moreinformation
-            rows[rowIndex].requiredstuff = formdata.requiredstuff
-            rows[rowIndex].approved = formdata.approved
-            rows[rowIndex].reason = formdata.reason
+            if (formdata.istargetfounded != '') rows[rowIndex].istargetfounded = formdata.istargetfounded
+            if (formdata.targetfullname != '') rows[rowIndex].targetfullname = formdata.targetname
+            if (formdata.targetid != '') rows[rowIndex].idno = formdata.targetid
+            if (formdata.targettel != '') rows[rowIndex].targettel = formdata.targettel
+            if (formdata.behavior != '') rows[rowIndex].behavior = formdata.behavior
+            if (formdata.address14 != '') rows[rowIndex].address14 = formdata.address14
+            if (formdata.moo14 != '') rows[rowIndex].moo14 = formdata.moo14
+            if (formdata.subdistrict14 != '') rows[rowIndex].subdistrict14 = formdata.subdistrict14
+            if (formdata.district14 != '') rows[rowIndex].district14 = formdata.district14
+            if (formdata.province14 != '') rows[rowIndex].province14 = formdata.province14
+            if (formdata.zipcode14 != '') rows[rowIndex].zipcode14 = formdata.zipcode14
+            if (formdata.latlng14 != '') rows[rowIndex].latlng14 = formdata.latlng14
+            if (formdata.addresscurrent != '') rows[rowIndex].addresscurrent = formdata.addresscurrent
+            if (formdata.moocurrent != '') rows[rowIndex].moocurrent = formdata.moocurrent
+            if (formdata.subdistrictcurrent != '') rows[rowIndex].subdistrictcurrent = formdata.subdistrictcurrent
+            if (formdata.districtcurrent != '') rows[rowIndex].districtcurrent = formdata.districtcurrent
+            if (formdata.provincecurrent != '') rows[rowIndex].provincecurrent = formdata.provincecurrent
+            if (formdata.zipcodecurrent != '') rows[rowIndex].zipcodecurrent = formdata.zipcodecurrent
+            if (formdata.latlngcurrent != '') rows[rowIndex].latlngcurrent = formdata.latlngcurrent
+            if (formdata.facebooktarget != '') rows[rowIndex].facebook = formdata.facebooktarget
+            if (formdata.instagramtarget != '') rows[rowIndex].instagram = formdata.instagramtarget
+            if (formdata.linetarget != '') rows[rowIndex].line = formdata.linetarget
+            if (formdata.twittertarget != '') rows[rowIndex].twitter = formdata.twittertarget
+            if (formdata.casingname != '') rows[rowIndex].casingname = formdata.casingname
+            if (formdata.casingtel != '') rows[rowIndex].casingtel = formdata.casingtel
+            if (formdata.car != '') rows[rowIndex].car = formdata.car
+            if (formdata.motorcycle != '') rows[rowIndex].motorcycle = formdata.motorcycle
+            if (formdata.moreinformation != '') rows[rowIndex].moreinformation = formdata.moreinformation
+            if (formdata.requiredstuff != '') rows[rowIndex].requiredstuff = formdata.requiredstuff
+            if (formdata.reason != '') rows[rowIndex].reason = formdata.reason
             rows[rowIndex].date_casing = formdata.casingdate
+            rows[rowIndex].approved = formdata.approved
+            formdata.hanuman != null ? rows[rowIndex].hanuman = formdata.hanuman : rows[rowIndex].hanuman = false
+            formdata.drone != null ? rows[rowIndex].drone = formdata.drone : rows[rowIndex].drone = false
+            formdata.xry != null ? rows[rowIndex].xry = formdata.xry : rows[rowIndex].xry = false
+            formdata.pr != null ? rows[rowIndex].pr = formdata.pr : rows[rowIndex].pr = false
+            rows[rowIndex].date_changed = date + " " + time
+
             await rows[rowIndex].save();
             result = true
             teamupdated = await this.updateTeamName(formdata, code)
             if (teamupdated && result) {
                 return true
-            }else{
+            } else {
+                console.error(teamupdated)
                 return false
             }
         } catch (err) {
             console.error(err)
         }
 
-       
-    },
 
+    },
 
 
     updateRow: async function updateRow(record, files) {
@@ -384,21 +249,20 @@ module.exports = {
         let headname = record.name.toString().replace(' ', '')
         let status = record.status
         //load sheet for getindex in sheet
-        let rows = await this.loadSheet('evidence')
+        let rows = await this.loadSheet('operation')
         let rowIndex
         for (let index = 0; index < rows.length; index++) {
-            if (rows[index].IDdetect == placeid) {
+            if (rows[index].code == placeid) {
                 rowIndex = index
             }
         }
         let systemcheckname = rows[rowIndex].headName.toString().replace(' ', '')
-        let systemcheckid = rows[rowIndex].IDdetect.toString().replace(' ', '').toLocaleLowerCase()
-        let checkIDdetect = placeid.toString().trim().toLocaleLowerCase()
+        let systemcheckid = rows[rowIndex].code.toString().replace(' ', '').toLocaleLowerCase()
+        let checkcode = placeid.toString().trim().toLocaleLowerCase()
 
         const collator = new Intl.Collator('th');
         const order = collator.compare(systemcheckname, headname);
-        if ((order == 0) && (checkIDdetect == systemcheckid)) {
-            this.sendimages(status, files)
+        if ((order == 0) && (checkcode == systemcheckid)) {
             let normal = 0
             let war = 0
             let thaicraft = 0
@@ -414,6 +278,7 @@ module.exports = {
                         rows[rowIndex].specialcase = record.specialcase
                         linemessage = `\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: ก่อนเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nภาพถ่ายประกอบการรายงาน:${rows[rowIndex].folderID}} `
                         try {
+                            if(files!='')
                             this.sendimages(placeid, status, files, folderId)
                         } catch (err) {
                             console.error('Sending image error')
@@ -424,8 +289,6 @@ module.exports = {
                         war = parseInt(record.warguns)
                         thaicraft = parseInt(record.thaicraftguns)
                         ammunition = parseInt(record.ammunition)
-                        total = normal + war + thaicraft + ammunition
-                        console.log('total :' + total + ',normal :' + normal + ',war :' + war + ',thaicraft : ' + thaicraft + ',ammution :' + ammunition)
                         rows[rowIndex].status = record.status
                         rows[rowIndex].normalGuns = record.normalguns
                         rows[rowIndex].warGuns = record.warguns
@@ -435,9 +298,9 @@ module.exports = {
                         rows[rowIndex].etc = record.etc
                         rows[rowIndex].timestamp = timestamp
                         rows[rowIndex].specialcase = record.specialcase
-                        rows[rowIndex].totalFound = total
                         linemessage = `\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: ขณะเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nพบของกลาง:\nอาวุธปืนทั่วไป:${record.normalguns}\nอาวุธปืนสงคราม:${record.warguns}\nอาวุธปืนไทยประดิษฐ์:${record.thaicraftguns}\nเครื่องยุทธภัณฑ์:${record.ammunition}\nอื่นๆ:${record.etc}\n\nภาพถ่ายประกอบการรายงาน:${rows[rowIndex].folderID}}`
                         try {
+                            if(files!='')
                             this.sendimages(placeid, status, files, folderId)
                         }
                         catch (err) {
@@ -450,8 +313,6 @@ module.exports = {
                         war = parseInt(record.warguns)
                         thaicraft = parseInt(record.thaicraftguns)
                         ammunition = parseInt(record.ammunition)
-                        total = normal + war + thaicraft + ammunition
-                        console.log('total :' + total + ',normal :' + normal + ',war :' + war + ',thaicraft : ' + thaicraft + ',ammution :' + ammunition)
                         rows[rowIndex].status = record.status
                         rows[rowIndex].normalGuns = record.normalguns
                         rows[rowIndex].warGuns = record.warguns
@@ -461,9 +322,9 @@ module.exports = {
                         rows[rowIndex].etc = record.etc
                         rows[rowIndex].timestamp = timestamp
                         rows[rowIndex].specialcase = record.specialcase
-                        rows[rowIndex].totalFound = total
                         linemessage = `\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: หลังเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nพบของกลาง:\nอาวุธปืนทั่วไป:${record.normalguns}\nอาวุธปืนสงคราม:${record.warguns}\nอาวุธปืนไทยประดิษฐ์:${record.thaicraftguns}\nเครื่องยุทธภัณฑ์:${record.ammunition}\nอื่นๆ:${record.etc}\n\nภาพถ่ายประกอบการรายงาน:${rows[rowIndex].folderID}}`
                         try {
+                            if(files!='')
                             this.sendimages(placeid, status, files, folderId)
                         } catch (err) {
                             console.error('Sending image error')
@@ -486,7 +347,7 @@ module.exports = {
             }
         } else {
             console.log('User input:' + headname + " รหัสเป้า :" + placeid)
-            console.log('System :' + systemcheckname + " รหัสเป้า :" + rows[rowIndex].IDdetect)
+            console.log('System :' + systemcheckname + " รหัสเป้า :" + rows[rowIndex].code)
             return 'notmatch'
         }
     },
@@ -520,6 +381,25 @@ module.exports = {
         }
         return (jsonstring)
     },
+
+    gettotalcolumn : async function gettotalcolumn(){
+        let alldata
+        try {
+            await doc.useServiceAccountAuth(creds)
+            await doc.loadInfo()
+            let sheet = await doc.sheetsByTitle['operation']
+            let columncount = sheet.columnCount
+            console.log(columncount)
+            const newcell  = sheet.loadCells(0,columncount+1)
+            newcell.value = 'test01'
+            console.log(newcell.value)
+            await sheet.saveUpdatedCells();
+        } catch (err) {
+            console.error(err)
+        }
+        return alldata
+    }
+
 
 
 }

@@ -6,7 +6,6 @@ module.exports={
 
     creatlocalfolder:createlocalFolder = (foldername)=>{
         let folderpath = `./data/${foldername}`
-        fs.rmdirSync(folderpath,{ recursive: true })
         fs.mkdirSync(folderpath,{recursive:true},(err)=>{
             if (err) console.error(err)
             else{
@@ -17,10 +16,12 @@ module.exports={
     
     createlocalfile:createlocalfile = (filestore,nametag,code) =>{
         let foldername = path.join(path.dirname(__dirname),'/data',code)
+        let currenttime = Date.now()
+
         if(Array.isArray(filestore)){
             let index = 1
             filestore.forEach(element => {
-                let filename = nametag+'_'+index+'_'+element.name
+                let filename = nametag+index+'_'+currenttime+'_'+element.name
                 console.log(element.data.toString())
                 fs.copyFile( element.tempFilePath, path.join(foldername,filename), (err) => {
                     if (err) throw err;
@@ -28,7 +29,7 @@ module.exports={
                   index++
             });
         }else{
-            let filename = nametag+'_'+filestore.name
+            let filename = nametag+'_'+currenttime+'_'+filestore.name
             fs.copyFile(filestore.tempFilePath,path.join(foldername,filename), (err) => {
                 if (err) throw err;
               });
@@ -44,6 +45,22 @@ module.exports={
             arryfile.push(file_path)
         });
         return arryfile
+    },
+
+    renamefiles : renamefiles = async ()=>{
+        let folderpath = ('yingjaroen/')
+        let files = await fs.readdirSync(folderpath)
+        try{
+            for (let index = 0; index < files.length; index++) {
+                const element = files[index];
+                console.log(folderpath+element)
+                console.log(folderpath+index)
+                fs.rename(folderpath+element,folderpath+index)
+            }        
+        }catch(err){
+
+        }
+       
     },
 
     clearimages:clearimages = ()=>{
