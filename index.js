@@ -38,7 +38,6 @@ app.get('/operation', async (req, res) => {
 })
 
 app.get('/operationform/', async (req, res) => {
-
     if (req.query['code'] != '') {
         let code = req.query['code'].toLocaleUpperCase()
         let loadpoint = await ggsheet.loadpoint(code)
