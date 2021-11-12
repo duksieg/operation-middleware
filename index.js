@@ -37,7 +37,7 @@ app.get('/operation', async (req, res) => {
     res.render('operationmain')
 })
 
-app.get("/operationform", async (req, res) => {
+app.get("/operationform/", async (req, res) => {
 
     if (req.query['code'] != '') {
         let code = req.query['code'].toLocaleUpperCase()
