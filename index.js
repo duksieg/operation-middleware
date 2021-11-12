@@ -37,12 +37,11 @@ app.get('/operation', async (req, res) => {
     res.render('operationmain')
 })
 
-app.get("/operationform/", async (req, res) => {
+app.get('/operationform/', async (req, res) => {
 
     if (req.query['code'] != '') {
         let code = req.query['code'].toLocaleUpperCase()
         let loadpoint = await ggsheet.loadpoint(code)
-        console.log(loadpoint)
         res.render('operation',{pointdata:loadpoint})
     } else {
         res.render('404')
@@ -56,7 +55,7 @@ app.get('/casing', async (req, res) => {
 
 app.get('/casingform/', async (req, res) => {
     if (req.query['code'] != '') {
-        let code_id = req.query['code']
+        let code_id = req.query['code'].toLocaleUpperCase()
         let main_data = await ggsheet.getMainbyCode(code_id)
         let team_data = await ggsheet.getTeambyCode(code_id)
         if (main_data != null || main_data != undefined) {
