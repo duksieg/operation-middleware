@@ -1,6 +1,7 @@
 
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { google } = require('googleapis');
+const utils = require('./ggutils')
 const fs = require('fs');
 const linesender = require('./linenoti')
 var creds = require('./key.json');
@@ -34,35 +35,24 @@ module.exports = {
         return alldata
     },
 
-    //load team
-    loadTeam: async function loadteam() {
 
-    },
-
-    loadpoint: async function loadpoint() {
-        let code = []
-        let headteam = []
-
+    loadpoint: async function loadpoint(code) {
+        let data_loadpoint
         try {
-            let teaminform = await this.loadSheet('team')
-            for (let index = 0; index < teaminform.length; index++) {
-                const element = teaminform[index];
-                if (!code.includes(element.code) && (element.code != undefined)) {
-                    code.push(element.code)
-                }
-                if (!headteam.includes(element.header_name) && (element.header_name!=undefined)) {
-                    headteam.push(element.header_name)
+            let data = await this.loadSheet('operation')
+            for (let index = 0; index < data.length; index++) {
+                const element = data[index];
+                if (element.code == code) {
+                    data_loadpoint = element
+                    break
+                } else {
+                    continue
                 }
             }
         } catch (err) {
             console.error(err)
         }
-
-        let obj = {
-            'code': code,
-            'headteam': headteam
-        };
-        return obj
+        return data_loadpoint
     },
 
     // get all datarow 
@@ -238,15 +228,13 @@ module.exports = {
 
     },
 
-
     updateRow: async function updateRow(record, files) {
         let date = new Date().toLocaleDateString("th-TH", { timeZone: 'Asia/Bangkok' })
         let time = new Date().toLocaleTimeString("th-TH", { timeZone: 'Asia/Bangkok' })
         let timestamp = date + " " + time
         let result, linemessage
         //placeid from post
-        let placeid = record.placeid
-        let headname = record.name.toString().replace(' ', '')
+        let placeid = record.placeid.toString().trim()
         let status = record.status
         //load sheet for getindex in sheet
         let rows = await this.loadSheet('operation')
@@ -256,99 +244,95 @@ module.exports = {
                 rowIndex = index
             }
         }
-        let systemcheckname = rows[rowIndex].headName.toString().replace(' ', '')
-        let systemcheckid = rows[rowIndex].code.toString().replace(' ', '').toLocaleLowerCase()
-        let checkcode = placeid.toString().trim().toLocaleLowerCase()
-
-        const collator = new Intl.Collator('th');
-        const order = collator.compare(systemcheckname, headname);
-        if ((order == 0) && (checkcode == systemcheckid)) {
-            let normal = 0
-            let war = 0
-            let thaicraft = 0
-            let ammunition = 0
-            let total = 0
-            try {
-                let folderId = rows[rowIndex].folderID
-                folderId = folderId.replace('https://drive.google.com/drive/folders/', '')
-                switch (status) {
-                    case 'before':
-                        rows[rowIndex].status = record.status
-                        rows[rowIndex].timestamp = timestamp
-                        rows[rowIndex].specialcase = record.specialcase
-                        linemessage = `\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: ก่อนเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nภาพถ่ายประกอบการรายงาน:${rows[rowIndex].folderID}} `
-                        try {
-                            if(files!='')
-                            this.sendimages(placeid, status, files, folderId)
-                        } catch (err) {
-                            console.error('Sending image error')
-                        }
-                        break;
-                    case 'current':
-                        normal = parseInt(record.normalguns)
-                        war = parseInt(record.warguns)
-                        thaicraft = parseInt(record.thaicraftguns)
-                        ammunition = parseInt(record.ammunition)
-                        rows[rowIndex].status = record.status
-                        rows[rowIndex].normalGuns = record.normalguns
-                        rows[rowIndex].warGuns = record.warguns
-                        rows[rowIndex].thaicraftGuns = record.thaicraftguns
-                        rows[rowIndex].ammunition = record.ammunition
-                        rows[rowIndex].criminal = record.criminal
-                        rows[rowIndex].etc = record.etc
-                        rows[rowIndex].timestamp = timestamp
-                        rows[rowIndex].specialcase = record.specialcase
-                        linemessage = `\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: ขณะเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nพบของกลาง:\nอาวุธปืนทั่วไป:${record.normalguns}\nอาวุธปืนสงคราม:${record.warguns}\nอาวุธปืนไทยประดิษฐ์:${record.thaicraftguns}\nเครื่องยุทธภัณฑ์:${record.ammunition}\nอื่นๆ:${record.etc}\n\nภาพถ่ายประกอบการรายงาน:${rows[rowIndex].folderID}}`
-                        try {
-                            if(files!='')
-                            this.sendimages(placeid, status, files, folderId)
-                        }
-                        catch (err) {
-                            console.error('Sending image error')
-                        }
-                        break;
-
-                    case 'after':
-                        normal = parseInt(record.normalguns)
-                        war = parseInt(record.warguns)
-                        thaicraft = parseInt(record.thaicraftguns)
-                        ammunition = parseInt(record.ammunition)
-                        rows[rowIndex].status = record.status
-                        rows[rowIndex].normalGuns = record.normalguns
-                        rows[rowIndex].warGuns = record.warguns
-                        rows[rowIndex].thaicraftGuns = record.thaicraftguns
-                        rows[rowIndex].ammunition = record.ammunition
-                        rows[rowIndex].criminal = record.criminal
-                        rows[rowIndex].etc = record.etc
-                        rows[rowIndex].timestamp = timestamp
-                        rows[rowIndex].specialcase = record.specialcase
-                        linemessage = `\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: หลังเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nพบของกลาง:\nอาวุธปืนทั่วไป:${record.normalguns}\nอาวุธปืนสงคราม:${record.warguns}\nอาวุธปืนไทยประดิษฐ์:${record.thaicraftguns}\nเครื่องยุทธภัณฑ์:${record.ammunition}\nอื่นๆ:${record.etc}\n\nภาพถ่ายประกอบการรายงาน:${rows[rowIndex].folderID}}`
-                        try {
-                            if(files!='')
-                            this.sendimages(placeid, status, files, folderId)
-                        } catch (err) {
-                            console.error('Sending image error')
-                        } break;
-
-                }
-                await rows[rowIndex].save();
-                result = true
-                if (result) {
-                    let jsonData = {
-                        message: linemessage,
+        try {
+            let folderId = rows[rowIndex].folderID
+            let flag_success = false
+            //folderId = folderId.replace('https://drive.google.com/drive/folders/', '')
+            if (status == 'before') {
+                rows[rowIndex].status = record.status
+                rows[rowIndex].timestamp = timestamp
+                rows[rowIndex].specialcase = record.specialcase
+                linemessage = `\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: ก่อนเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nภาพถ่ายประกอบการรายงาน:${rows[rowIndex].folderID}} `
+                try {
+                    if (files != ''){
+                        flag_success = utils.sendimages(placeid, status, files, folderId)
+                    }else{
+                        flag_success =true
                     }
-                    // let response = await linesender.linenoti(jsonData,placeid)
+                        
+                } catch (err) {
+                    console.error(placeid + ' : Sending image error')
                 }
-                return result
-            } catch (err) {
-                console.error('User input :' + placeid + 'get error' + err)
-                let reserr = "รหัสจุดค้นที่ : " + placeid + " reason : " + err
-                return reserr
+            } else if (status == 'current' || status == 'after') {
+                if (record.criminal_current != rows[rowIndex].criminal_current) rows[rowIndex].criminal_current = record.criminal_current
+                if (record.criminal_wanted != rows[rowIndex].criminal_wanted) rows[rowIndex].criminal_wanted = record.criminal_wanted
+
+                //weapon update
+                if (record.gun_registered != rows[rowIndex].gun_registered) rows[rowIndex].gun_registered = record.gun_registered
+                if (record.gun_unregistered != rows[rowIndex].gun_unregistered) rows[rowIndex].gun_unregistered = record.gun_unregistered
+                if (record.gun_thaicraft != rows[rowIndex].gun_thaicraft) rows[rowIndex].gun_thaicraft = record.gun_thaicraft
+                if (record.gun_modified != rows[rowIndex].gun_modified) rows[rowIndex].gun_modified = record.gun_modified
+                if (record.gun_war != rows[rowIndex].gun_war) rows[rowIndex].gun_war = record.gun_war
+                //ammo
+                if (record.ammo_shotshell != rows[rowIndex].ammo_shotshell) rows[rowIndex].ammo_shotshell = record.ammo_shotshell
+                if (record.ammo_airgun != rows[rowIndex].ammo_airgun) rows[rowIndex].ammo_airgun = record.ammo_airgun
+                if (record.ammo_9mm != rows[rowIndex].ammo_9mm) rows[rowIndex].ammo_9mm = record.ammo_9mm
+                if (record.ammo_11mm != rows[rowIndex].ammo_11mm) rows[rowIndex].ammo_11mm = record.ammo_11mm
+                if (record.ammo_22 != rows[rowIndex].ammo_22) rows[rowIndex].ammo_22 = record.ammo_22
+                if (record.ammo_38 != rows[rowIndex].ammo_38) rows[rowIndex].ammo_38 = record.ammo_38
+                if (record.ammo_380 != rows[rowIndex].ammo_380) rows[rowIndex].ammo_380 = record.ammo_380
+                if (record.ammo_357 != rows[rowIndex].ammo_357) rows[rowIndex].ammo_357 = record.ammo_357
+                if (record.ammo_556 != rows[rowIndex].ammo_556) rows[rowIndex].ammo_556 = record.ammo_556
+                if (record.ammo_762 != rows[rowIndex].ammo_762) rows[rowIndex].ammo_762 = record.ammo_762
+                //ammunition
+                if (record.explosive != rows[rowIndex].explosive) rows[rowIndex].explosive = record.explosive
+                if (record.barrel != rows[rowIndex].barrel) rows[rowIndex].barrel = record.barrel
+                if (record.trigger != rows[rowIndex].trigger) rows[rowIndex].trigger = record.trigger
+                if (record.bolt_action != rows[rowIndex].bolt_action) rows[rowIndex].bolt_action = record.bolt_action
+                if (record.magazine != rows[rowIndex].magazine) rows[rowIndex].magazine = record.magazine
+                if (record.silencer != rows[rowIndex].silencer) rows[rowIndex].silencer = record.silencer
+                if (record.light_absorb != rows[rowIndex].light_absorb) rows[rowIndex].light_absorb = record.light_absorb
+                if (record.scope != rows[rowIndex].scope) rows[rowIndex].scope = record.scope
+
+                if(record.etc != rows[rowIndex].etc ) rows[rowIndex].etc = record.etc.toString().trim()
+                rows[rowIndex].timestamp = timestamp
+                rows[rowIndex].specialcase = record.specialcase
+
+                let status_tothai
+                if (status == 'current') {
+                    status_tothai = 'ขณะเข้าค้น'
+                } else {
+                    status_tothai = 'หลังเข้าค้น'
+                }
+
+                linemessage = `\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: ${status_tothai} \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nพบของกลาง:\nอาวุธปืนทั่วไป:${record.normalguns}\nอาวุธปืนสงคราม:${record.warguns}\nอาวุธปืนไทยประดิษฐ์:${record.thaicraftguns}\nเครื่องยุทธภัณฑ์:${record.ammunition}\nอื่นๆ:${record.etc}\n\nภาพถ่ายประกอบการรายงาน:${rows[rowIndex].folderID}}`
+                try {
+                    if (files != ''){
+                        flag_success = utils.sendimages(placeid, status, files, folderId)
+                    }else{
+                        flag_success =true
+                    }
+                }
+                catch (err) {
+                    console.error(placeid + ': Sending image error')
+                }
+            } else {
+                console.log(placeid + ': could not get status')
             }
-        } else {
-            console.log('User input:' + headname + " รหัสเป้า :" + placeid)
-            console.log('System :' + systemcheckname + " รหัสเป้า :" + rows[rowIndex].code)
-            return 'notmatch'
+            if (flag_success = true) {
+                await rows[rowIndex].save();
+                let jsonData = {
+                    message: linemessage,
+                }
+                // let response = await linesender.linenoti(jsonData,placeid)
+
+                return true
+            }
+
+        } catch (err) {
+            console.error('User input :' + placeid + 'get error' + err)
+            let reserr = "รหัสจุดค้นที่ : " + placeid + " reason : " + err
+            return reserr
         }
     },
 
@@ -381,24 +365,6 @@ module.exports = {
         }
         return (jsonstring)
     },
-
-    gettotalcolumn : async function gettotalcolumn(){
-        let alldata
-        try {
-            await doc.useServiceAccountAuth(creds)
-            await doc.loadInfo()
-            let sheet = await doc.sheetsByTitle['operation']
-            let columncount = sheet.columnCount
-            console.log(columncount)
-            const newcell  = sheet.loadCells(0,columncount+1)
-            newcell.value = 'test01'
-            console.log(newcell.value)
-            await sheet.saveUpdatedCells();
-        } catch (err) {
-            console.error(err)
-        }
-        return alldata
-    }
 
 
 

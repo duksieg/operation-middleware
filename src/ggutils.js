@@ -149,7 +149,6 @@ module.exports ={
     },
 
     sendimages: async function sendimages(placeid, status, files, folderId) {
-
         if (files != null || files != undefined) {
             if (Array.isArray(files)) {
                 for (let index = 0; index < files.length; index++) {
@@ -162,6 +161,7 @@ module.exports ={
                 let filepath = files.tempFilePath
                 this.createimage(filenametosend, filepath, files.mimetype, folderId)
             }
+            return true
         } else {
             return false
         }
