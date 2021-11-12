@@ -33,7 +33,7 @@ app.get("/", async (req, res) => {
     res.render('index')
 })
 
-app.get('/operation/', async (req, res) => {
+app.get('/operation', async (req, res) => {
     res.render('operationmain')
 })
 
