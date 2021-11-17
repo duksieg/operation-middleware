@@ -6,6 +6,7 @@ const fileupload = require('express-fileupload')
 const { body, validationResult } = require('express-validator');
 const fs = require('fs')
 const cor = require('cors')
+const ggutils = require('./src/ggutils')
 app.set('view engine', 'ejs');
 app.use(cor())
 app.use(express.static("public"));
@@ -134,12 +135,25 @@ app.post('/casingrecord', async (req, res) => {
 
 })
 
-
+app.get('/personal',async (req,res)=>{
+    if(req.query['code'] != ''){
+        let code = req.query['code']
+        let op_inform = ggsheet.getopbyCode(code)
+        if(op_inform !=null || op_inform != undefined){
+            res.render('personaldetail',{evidence:op_inform})
+        }else{
+            res.render('404')
+        }
+    }else{
+        res.render('perosnaldetail')
+    }
+})
 
 app.get('/test', async (req, res) => {
     let resp
     try {
-        resp = await ggsheet.gettotalcolumn()
+        let reps = await ggsheet.updateRowfolderID()
+        res.send('ok')
     } catch (err) {
         console.error(err)
     }

@@ -1,10 +1,10 @@
 
 const { google } = require('googleapis');
 const fs = require('fs');
-var creds = require('./key.json');
+const ggsheet = require('./ggsheet');
 
 const authcreds = new google.auth.GoogleAuth({
-    keyFile: "./key.json", //the key file
+    keyFile: "./src/key.json", //the key file
     scopes: "https://www.googleapis.com/auth/drive",
 });
 
@@ -36,7 +36,7 @@ module.exports ={
         }
     },
     getfolderid: async function getfolderid(IDdetect) {
-        let parentid = '1Kw5dWvvnPu2pv7abgxyfnLHWjZxGhnwrp'
+        let parentid = '1fL0qQ7Kb4BV2R3UaQVtROqBiNsOhwHll'
         let result
         try {
             let resp = await drive.files.list({
@@ -167,16 +167,7 @@ module.exports ={
         }
     },
 
-    updateRowfolderID: async function updateRowfolderID(linkfolderid, pointname) {
 
-        try {
-            let rows = await this.loadSheet()
-            rows[rowindex].folderID = linkfolderid
-            await rows[rowindex].save();
-            return true
-        } catch (err) {
-            console.error(err)
-        }
-    },
+
 
 }

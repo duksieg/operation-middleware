@@ -5,6 +5,7 @@ const utils = require('./ggutils')
 const fs = require('fs');
 const linesender = require('./linenoti')
 var creds = require('./key.json');
+const ggutils = require('./ggutils');
 
 const authcreds = new google.auth.GoogleAuth({
     keyFile: "./key.json", //the key file
@@ -114,10 +115,28 @@ module.exports = {
             for (let index = 0; index < rows.length; index++) {
                 if (rows[index].code == code) {
                     rowIndex = index
+                    break
                 }
             }
             return rows[rowIndex]
         } catch (err) {
+            console.error(err)
+        }
+    },
+
+    getopbyCode : async function getopbyCode (code){
+        try{
+            let allrows  = await this.loadSheet('operation')
+            let rowIndex
+            for (let index = 0; index < allrows.length; index++) {
+                const element = allrows[index];
+                if(allrows[index].code == code){
+                    rowIndex = index
+                break
+                }
+            }
+            return allrows[rowIndex]
+        }catch(err){
             console.error(err)
         }
     },
@@ -254,12 +273,12 @@ module.exports = {
                 rows[rowIndex].specialcase = record.specialcase
                 linemessage = `\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: ก่อนเข้าค้น \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nภาพถ่ายประกอบการรายงาน:${rows[rowIndex].folderID}} `
                 try {
-                    if (files != ''){
+                    if (files != '') {
                         flag_success = utils.sendimages(placeid, status, files, folderId)
-                    }else{
-                        flag_success =true
+                    } else {
+                        flag_success = true
                     }
-                        
+
                 } catch (err) {
                     console.error(placeid + ' : Sending image error')
                 }
@@ -294,7 +313,7 @@ module.exports = {
                 if (record.light_absorb != rows[rowIndex].light_absorb) rows[rowIndex].light_absorb = record.light_absorb
                 if (record.scope != rows[rowIndex].scope) rows[rowIndex].scope = record.scope
 
-                if(record.etc != rows[rowIndex].etc ) rows[rowIndex].etc = record.etc.toString().trim()
+                if (record.etc != rows[rowIndex].etc) rows[rowIndex].etc = record.etc.toString().trim()
                 rows[rowIndex].timestamp = timestamp
                 rows[rowIndex].specialcase = record.specialcase
 
@@ -307,10 +326,10 @@ module.exports = {
 
                 linemessage = `\n\nจุดเข้าค้นที่ ${record.placeid}\nสถานะ: ${status_tothai} \n\nหน.ชุดปฏิบัติ:\n${record.name}\nเบอร์โทร:${rows[rowIndex].contactNo}\n\nวัน/เวลาขณะส่งข้อมูล:\n${timestamp}\n\nพบของกลาง:\nอาวุธปืนทั่วไป:${record.normalguns}\nอาวุธปืนสงคราม:${record.warguns}\nอาวุธปืนไทยประดิษฐ์:${record.thaicraftguns}\nเครื่องยุทธภัณฑ์:${record.ammunition}\nอื่นๆ:${record.etc}\n\nภาพถ่ายประกอบการรายงาน:${rows[rowIndex].folderID}}`
                 try {
-                    if (files != ''){
+                    if (files != '') {
                         flag_success = utils.sendimages(placeid, status, files, folderId)
-                    }else{
-                        flag_success =true
+                    } else {
+                        flag_success = true
                     }
                 }
                 catch (err) {
@@ -366,6 +385,21 @@ module.exports = {
         return (jsonstring)
     },
 
+    updateRowfolderID: async function updateRowfolderID() {
+
+        let rowsdata = await this.loadSheet('operation')
+        try {
+            for (let index = 0; index < rowsdata.length; index++) {
+                const element = rowsdata[index];
+                let respfolder = await ggutils.getfolderid(element.code)
+                rowsdata[index].folderID = respfolder[0].id            
+                await rowsdata[index].save();
+            }
+            return true
+        } catch (err) {
+            console.error(err)
+        }
+    },
 
 
 }
