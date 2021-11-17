@@ -30,30 +30,30 @@ function initialload() {
 
 var map = initialload()
 
-app.get("/", async (req, res) => {
+app.get("/", async(req, res) => {
     res.render('index')
 })
 
-app.get('/operation', async (req, res) => {
+app.get('/operation', async(req, res) => {
     res.render('operationmain')
 })
 
-app.get('/operationform/', async (req, res) => {
+app.get('/operationform/', async(req, res) => {
     if (req.query['code'] != '') {
         let code = req.query['code'].toLocaleUpperCase()
         let loadpoint = await ggsheet.loadpoint(code)
-        res.render('operation',{pointdata:loadpoint})
+        res.render('operation', { pointdata: loadpoint })
     } else {
         res.render('404')
     }
 
 })
 
-app.get('/casing', async (req, res) => {
+app.get('/casing', async(req, res) => {
     res.render('casingmain')
 })
 
-app.get('/casingform/', async (req, res) => {
+app.get('/casingform/', async(req, res) => {
     if (req.query['code'] != '') {
         let code_id = req.query['code'].toLocaleUpperCase()
         let main_data = await ggsheet.getMainbyCode(code_id)
@@ -71,7 +71,7 @@ app.get('/casingform/', async (req, res) => {
 })
 
 
-app.post("/saverecord", async (req, res) => {
+app.post("/saverecord", async(req, res) => {
     let checkstatus
     try {
         if (req.body.placeid != null || req.body.placeid != '') {
@@ -97,10 +97,10 @@ app.post("/saverecord", async (req, res) => {
     }
 })
 
-app.post('/casingrecord', async (req, res) => {
+app.post('/casingrecord', async(req, res) => {
 
     console.log(req.body)
-    // console.log(req.files)
+        // console.log(req.files)
     let code = req.body.code
     code.toString().toUpperCase()
     if (req.body != null && req.body.code != null) {
@@ -135,21 +135,29 @@ app.post('/casingrecord', async (req, res) => {
 
 })
 
-app.get('/personal',async (req,res)=>{
-    if(req.query['code'] != ''){
-        let code = req.query['code']
-        let op_inform = ggsheet.getopbyCode(code)
-        if(op_inform !=null || op_inform != undefined){
-            res.render('personaldetail',{evidence:op_inform})
-        }else{
+app.get('/personal', async(req, res) => {
+    if (req.query['code'] != undefined) {
+        let code = req.query['code'].toString().toUpperCase()
+        let op_inform = await ggsheet.getopbyCode(code)
+        let images_gg = await ggutils.getimages(op_inform.folderID)
+            //let slide = await ggutils.getslide(op_inform.folderID)
+        let images_person = await util.getpersonimage(code)
+        console.log(images_gg)
+        if (op_inform != null || op_inform != undefined) {
+            res.render('personaldetail', { evidence: op_inform, images: images_gg })
+        } else {
             res.render('404')
         }
-    }else{
-        res.render('perosnaldetail')
+    } else {
+        res.render('personalmain')
     }
 })
 
-app.get('/test', async (req, res) => {
+app.get('/personal/:code', async(req, res) => {
+
+})
+
+app.get('/test', async(req, res) => {
     let resp
     try {
         let reps = await ggsheet.updateRowfolderID()
@@ -170,8 +178,3 @@ app.get('/test', async (req, res) => {
 //     jsonstring = JSON.stringify(jsonObj)
 //     res.send(jsonstring)
 // })
-
-
-
-
-
