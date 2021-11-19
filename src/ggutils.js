@@ -1,4 +1,3 @@
-
 const { google } = require('googleapis');
 const fs = require('fs');
 const ggsheet = require('./ggsheet');
@@ -13,24 +12,23 @@ const drive = google.drive({
     auth: authcreds
 });
 
-module.exports ={
+module.exports = {
 
     getfileid: async function getfileid(IDdetect) {
         let parentid = '14IKnpv20XhDsKl4UTJqhm3mEjqRxH4Ik'
         let result
         try {
             let resp = await drive.files.list({
-                q: `'${parentid}' in parents and name contains '${IDdetect}'`,
-                mimeType: 'image/jpeg,image/png',
-                spaces: 'drive'
-            })
-            // resp.data.files.forEach(element => {
-            //     console.log(element)
-            // });
+                    q: `'${parentid}' in parents and name contains '${IDdetect}'`,
+                    mimeType: 'image/jpeg,image/png',
+                    spaces: 'drive'
+                })
+                // resp.data.files.forEach(element => {
+                //     console.log(element)
+                // });
             result = resp.data.files
             return result
-        }
-        catch (err) {
+        } catch (err) {
             console.error(err)
             return false
         }
@@ -40,38 +38,53 @@ module.exports ={
         let result
         try {
             let resp = await drive.files.list({
-                q: `'${parentid}' in parents and name contains '${IDdetect}'`,
-                mimeType: 'application/vnd.google-apps.folder',
-                spaces: 'drive',
-            })
-            // resp.data.files.forEach(element => {
-            //     console.log(element)
-            // });
+                    q: `'${parentid}' in parents and name contains '${IDdetect}'`,
+                    mimeType: 'application/vnd.google-apps.folder',
+                    spaces: 'drive',
+                })
+                // resp.data.files.forEach(element => {
+                //     console.log(element)
+                // });
             result = resp.data.files
             return result
-        }
-        catch (err) {
+        } catch (err) {
             console.error(err)
             return false
         }
 
 
     },
-    getimages: async function getimages(parentid, defaultid) {
-        if (parentid == null || parentid == undefined) parentid = defaultid
+    getimages: async function getimages(parentid) {
         let result
         try {
             let resp = await drive.files.list({
                 q: `'${parentid}' in parents`,
-                spaces: 'drive'
+                mimeType: 'image/jpeg,image/png',
+                spaces: 'drive',
+                fields: 'files/webViewLink'
             })
-            // resp.data.files.forEach(element => {
-            //     console.log(element)
-            // });
             result = resp.data.files
             return result
+        } catch (err) {
+            console.error(err)
+            return false
         }
-        catch (err) {
+
+    },
+    getslide: async function getslide(parentid) {
+        let result
+        try {
+            let resp = await drive.files.get({
+                    q: `'${parentid}' in parents`,
+                    mimeType: 'application/vnd.google-apps.presentation',
+                    spaces: 'drive'
+                })
+                // resp.data.files.forEach(element => {
+                //     console.log(element)
+                // });
+            result = resp.data.files
+            return result
+        } catch (err) {
             console.error(err)
             return false
         }
@@ -141,8 +154,7 @@ module.exports ={
                 }
             });
             return true
-        }
-        catch (err) {
+        } catch (err) {
             console.error(err)
             return false
         }
@@ -156,7 +168,7 @@ module.exports ={
                     let filepath = files[index].tempFilePath
                     this.createimage(filenametosend, filepath, files[index].mimetype, folderId)
                 }
-            } else {  //if not array = 1file
+            } else { //if not array = 1file
                 let filenametosend = placeid + "_" + status + "_" + files.name
                 let filepath = files.tempFilePath
                 this.createimage(filenametosend, filepath, files.mimetype, folderId)
