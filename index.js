@@ -128,7 +128,11 @@ app.post('/casingrecord', async (req, res) => {
         }
 
         let response = await ggsheet.updateCasingRow(req.body)
-        res.sendStatus(200)
+        if(response){
+            res.render('success')
+        }else{
+            res.render('failure',{reason:response})
+        }
     } else {
         res.sendStatus('404')
     }

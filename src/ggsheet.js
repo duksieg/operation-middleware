@@ -174,6 +174,7 @@ module.exports = {
             result = true
         } catch (err) {
             console.error(err)
+            result = err
         }
         return result
     },
@@ -181,8 +182,9 @@ module.exports = {
     updateCasingRow: async function updateCasingRow(formdata) {
         let date = new Date().toLocaleDateString("th-TH", { timeZone: 'Asia/Bangkok' })
         let time = new Date().toLocaleTimeString("th-TH", { timeZone: 'Asia/Bangkok' })
+        let result
+
         try {
-            let result
             let teamupdated = null
             let rows = await this.loadSheet('casing')
             let code = formdata.code
@@ -235,13 +237,14 @@ module.exports = {
             result = true
             teamupdated = await this.updateTeamName(formdata, code)
             if (teamupdated && result) {
-                return true
+                return result
             } else {
                 console.error(teamupdated)
-                return false
+                return  teamupdated
             }
         } catch (err) {
             console.error(err)
+            return err
         }
 
 
