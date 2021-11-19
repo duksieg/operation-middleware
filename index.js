@@ -157,10 +157,6 @@ app.get('/personal', async(req, res) => {
     }
 })
 
-app.get('/personal/:code', async(req, res) => {
-
-})
-
 app.get('/test', async(req, res) => {
     let resp
     try {
