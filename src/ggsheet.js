@@ -141,6 +141,26 @@ module.exports = {
         }
     },
 
+    setsos : async function setsos(code){
+        try{
+            let allrows = await this.loadSheet('operation')
+            let rowIndex
+            for (let index = 0; index < allrows.length; index++) {
+                const element = allrows[index];
+                if(allrows[index].code == code){
+                    rowIndex = index
+                break
+                }
+            }
+            allrows[rowIndex].specialcase  = true
+            await allrows[rowIndex].save();
+            return true
+        }catch(err){
+            console.error(err)
+            return false
+        }
+    },
+
 
     updateTeamName: async function updateTeamName(formdata, code) {
         let result = false

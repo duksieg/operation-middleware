@@ -55,13 +55,12 @@ module.exports = {
 
     },
     getimages: async function getimages(parentid) {
-        let result
+        let result =false
         try {
             let resp = await drive.files.list({
-                q: `'${parentid}' in parents`,
-                mimeType: 'image/jpeg,image/png',
+                q: `'${parentid}' in parents and (mimeType = "image/jpeg" or mimeType = "image/png")`,
                 spaces: 'drive',
-                fields: 'files/webViewLink'
+                fields: 'files/id'
             })
             result = resp.data.files
             return result
@@ -72,23 +71,19 @@ module.exports = {
 
     },
     getslide: async function getslide(parentid) {
-        let result
+        let result =false
         try {
-            let resp = await drive.files.get({
-                    q: `'${parentid}' in parents`,
-                    mimeType: 'application/vnd.google-apps.presentation',
+            let resp = await drive.files.list({
+                    q: `'${parentid}' in parents and mimeType = 'application/vnd.google-apps.presentation' `,
                     spaces: 'drive'
                 })
-                // resp.data.files.forEach(element => {
-                //     console.log(element)
-                // });
-            result = resp.data.files
-            return result
+                if(resp.data.files.length > 0){
+                    result = resp.data.files[0].id
+                }
         } catch (err) {
             console.error(err)
-            return false
         }
-
+        return result
     },
 
     createFolder: async function createFolder(pointname, rowindex) {

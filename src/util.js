@@ -50,8 +50,9 @@ module.exports = {
     getpersonimage: getpersonimage = async(code) => {
         let folderpath = path.join(folderdata, code)
         let files = fs.readdirSync(folderpath).filter(fn => fn.startsWith('personalimage14'));
-        if (files != null) {
-            return files
+        if (files != null && files.length > 0) {
+            let resp  = path.join(folderpath,files[0])
+            return resp
         } else {
             return false
         }

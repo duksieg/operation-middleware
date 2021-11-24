@@ -3,13 +3,14 @@ const app = express()
 var ggsheet = require('./src/ggsheet')
 var util = require('./src/util')
 const fileupload = require('express-fileupload')
-const { body, validationResult } = require('express-validator');
 const fs = require('fs')
 const cor = require('cors')
 const ggutils = require('./src/ggutils')
+const { json, urlencoded } = require('body-parser')
 app.set('view engine', 'ejs');
 app.use(cor())
 app.use(express.static("public"));
+app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 app.use(fileupload({
     useTempFiles: true,
@@ -144,29 +145,42 @@ app.get('/personal', async(req, res) => {
         let code = req.query['code'].toString().toUpperCase()
         let op_inform = await ggsheet.getopbyCode(code)
         let images_gg = await ggutils.getimages(op_inform.folderID)
-            //let slide = await ggutils.getslide(op_inform.folderID)
+        let slide = await ggutils.getslide(op_inform.folderID)
         let images_person = await util.getpersonimage(code)
-        console.log(images_gg)
+        console.log(op_inform.headerValues)
         if (op_inform != null || op_inform != undefined) {
-            res.render('personaldetail', { evidence: op_inform, images: images_gg })
+            res.render('personaldetail', { evidence: op_inform, images: images_gg ,image_person : images_person , slide:slide })
         } else {
-            res.render('404')
+            res.render('notfound',{reason:'ข้อมูลบางส่วนไม่สมบูรณ์'})
         }
     } else {
         res.render('personalmain')
     }
 })
 
+app.post('/emergency',async (req,res)=>{
+if(req.body.code != null && req.body.code != undefined)   {
+    let setsos = ggsheet.setsos(req.body.code)
+    if(setsos){
+        res.sendStatus(200)
+    }else{
+        res.sendStatus(500)
+    }
+}else{
+    res.sendStatus(500)
+}
+})
+
 app.get('/test', async(req, res) => {
-    let resp
     try {
-        let reps = await ggsheet.updateRowfolderID()
-        res.send('ok')
+        let reps = await util.getpersonimage('1C2')
+        console.log(reps)
+        res.send(reps)
     } catch (err) {
         console.error(err)
+        res.status(500)
     }
 
-    res.send('ok')
 })
 
 

@@ -34,7 +34,13 @@
         <div class="container">
             <div class="card">
                 <div class="card-header">
-                    ข้อมูลจุดเข้าค้น
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4>ข้อมูลจุดเข้าค้น</h4>
+                        <button class="btn align-self-end" type="button" data-bs-toggle="modal" data-bs-target="#sosmodal">
+                            <img src="https://img.icons8.com/emoji/48/fa314a/sos-button-emoji.png" />
+                        </button>
+                    </div>
+
                 </div>
                 <div class="card-body">
                     <form action="/saverecord" method="POST" encType="multipart/form-data" ref='uploadForm'>
@@ -49,15 +55,6 @@
                                 </select>
                                 <div class="invalid-feedback">
                                     กรุณาเลือกสถานะการเข้าค้น
-                                </div>
-                            </div>
-                            <div class="col-auto align-self-end">
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" value="true" name="specialcase"
-                                        id="specialcase">
-                                    <label class="form-check-label" for="specialcase">
-                                        เหตุฉุกเฉิน
-                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -76,7 +73,7 @@
                                 <div class="form-group">
                                     <label for="formGroupHeadername">ชื่อหัวหน้าชุด</label>
                                     <input class="form-control" id="name" name="name" readonly
-                                        value='<%- pointdata.headName %>' >
+                                        value='<%- pointdata.headName %>'>
                                 </div>
                             </div>
                         </div>
@@ -98,296 +95,343 @@
                         </div>
                 </div>
             </div>
-        </div>
-        <br>
-        <!-- guns record for after status Section-->
-        <div class="container my-4" id="hidden_div" style="display:none;">
-            <div class="card">
-                <div class="card-header">
-                    บัญชีตรวจยึด
-                </div>
-
-                <div class="card-body">
-                    <div class="card text-white" style="background-color: rgb(56, 56, 56);">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <label for="criminal_current">จับกุมซึ่่งหน้า</label>
-                                <input type="number" class="form-control w-25 text-center" name="criminal_current"
-                                    id="criminal_current" value=<%=pointdata.criminal_current %>
-                                onchange="criminal_cal()">
-                            </div>
-                            <div class="d-flex justify-content-between mt-2">
-                                <label for="criminal_wanted">จับกุมตามหมาย</label>
-                                <input type="number" class="form-control w-25 text-center" name="criminal_wanted"
-                                    id="criminal_wanted" value=<%=pointdata.criminal_wanted %>
-                                onchange="criminal_cal()">
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <div class="input-group my-2">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text">รวม</div>
-                                </div>
-                                <input type="number" class="form-control text-center" name="criminal" id="criminal"
-                                    value=0 readonly>
-                                <div class="input-group-append">
-                                    <span class="input-group-text">
-                                        ราย
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+            <br>
+            <!-- guns record for after status Section-->
+            <div class="container my-4" id="hidden_div" style="display:none;">
+                <div class="card">
+                    <div class="card-header">
+                        บัญชีตรวจยึด
                     </div>
-                    <!--Weapon-->
-                    <div class="card mt-3 bg-dark text-white">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between">
-                                ประเภทอาวุธปืน
-                                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
-                                    id="weapon_header" data-bs-toggle='collapse' aria-expanded="false"
-                                    data-bs-target="#weapon_set"></button>
+
+                    <div class="card-body">
+                        <div class="card text-white" style="background-color: rgb(56, 56, 56);">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <label for="criminal_current">จับกุมซึ่่งหน้า</label>
+                                    <input type="number" class="form-control w-25 text-center" name="criminal_current"
+                                        id="criminal_current" value=<%=pointdata.criminal_current %>
+                                    onchange="criminal_cal()">
+                                </div>
+                                <div class="d-flex justify-content-between mt-2">
+                                    <label for="criminal_wanted">จับกุมตามหมาย</label>
+                                    <input type="number" class="form-control w-25 text-center" name="criminal_wanted"
+                                        id="criminal_wanted" value=<%=pointdata.criminal_wanted %>
+                                    onchange="criminal_cal()">
+                                </div>
                             </div>
-                        </div>
-                        <div class="collapse" id="weapon_set" aria-labelledby="weapon_header">
-                            <div class="card text-dark m-2">
-                                <div class="card-header">
-                                    อาวุธปืนทั่วไป
-                                </div>
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <label for="gun_registered" class="col-form-label">ปืนมีทะเบียน</label>
-                                        <input type="number" class="form-control w-25 text-center"
-                                            name="gun_registered" value=<%= pointdata.gun_registered %>
-                                             onchange="normalguns_cal()"
-                                         id="gun_registered">
-                                    </div>
-                                    <div class="d-flex justify-content-between mt-2">
-                                        <label for="gun_unregistered"
-                                            class="col-form-label">ปืนไม่มีทะเบียน</label>
-                                        <input type="number" class="form-control w-25 text-center"
-                                            name="gun_unregistered" value=<%= pointdata.gun_unregistered %> onchange="normalguns_cal()"
-                                            id="gun_unregistered">
-                                    </div>
-                                </div>
-                                <div class="input-group my-2 px-2">
+                            <div class="card-footer">
+                                <div class="input-group my-2">
                                     <div class="input-group-prepend">
                                         <div class="input-group-text">รวม</div>
                                     </div>
-                                    <input type="number" class="form-control text-center" name="normalguns"
-                                        id="normalguns" readonly>
+                                    <input type="number" class="form-control text-center" name="criminal" id="criminal"
+                                        value=0 readonly>
                                     <div class="input-group-append">
                                         <span class="input-group-text">
-                                            กระบอก
+                                            ราย
                                         </span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="gun_war">อาวุธปืนสงคราม</label>
-                                    <input type="number" class="form-control w-25 d-inline text-center" name="gun_war"
-                                        id="gun_war" value=<%= pointdata.gun_war%>>
+                        </div>
+                        <!--Weapon-->
+                        <div class="card mt-3 bg-dark text-white">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between">
+                                    ประเภทอาวุธปืน
+                                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+                                        id="weapon_header" data-bs-toggle='collapse' aria-expanded="false"
+                                        data-bs-target="#weapon_set"></button>
                                 </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="gun_thaicraft">อาวุธปืนไทยประดิษฐ์</label>
-                                    <input type="number" class="form-control w-25 d-inline text-center"
-                                        name="gun_thaicraft" id="gun_thaicraft" value=<%= pointdata.gun_thaicraft%>>
+                            </div>
+                            <div class="collapse" id="weapon_set" aria-labelledby="weapon_header">
+                                <div class="card text-dark m-2">
+                                    <div class="card-header">
+                                        อาวุธปืนทั่วไป
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <label for="gun_registered" class="col-form-label">ปืนมีทะเบียน</label>
+                                            <input type="number" class="form-control w-25 text-center"
+                                                name="gun_registered" value=<%=pointdata.gun_registered %>
+                                            onchange="normalguns_cal()"
+                                            id="gun_registered">
+                                        </div>
+                                        <div class="d-flex justify-content-between mt-2">
+                                            <label for="gun_unregistered" class="col-form-label">ปืนไม่มีทะเบียน</label>
+                                            <input type="number" class="form-control w-25 text-center"
+                                                name="gun_unregistered" value=<%=pointdata.gun_unregistered %>
+                                            onchange="normalguns_cal()"
+                                            id="gun_unregistered">
+                                        </div>
+                                    </div>
+                                    <div class="input-group my-2 px-2">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text">รวม</div>
+                                        </div>
+                                        <input type="number" class="form-control text-center" name="normalguns"
+                                            id="normalguns" readonly>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">
+                                                กระบอก
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="gun_modified">อาวุธปืนดัดแปลง</label>
-                                    <input type="number" class="form-control w-25 d-inline text-center"
-                                        name="gun_modified" id="gun_modified" value=<%= pointdata.gun_modified%>>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="gun_war">อาวุธปืนสงคราม</label>
+                                        <input type="number" class="form-control w-25 d-inline text-center"
+                                            name="gun_war" id="gun_war" value=<%=pointdata.gun_war%>>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="gun_thaicraft">อาวุธปืนไทยประดิษฐ์</label>
+                                        <input type="number" class="form-control w-25 d-inline text-center"
+                                            name="gun_thaicraft" id="gun_thaicraft" value=<%=pointdata.gun_thaicraft%>>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="gun_modified">อาวุธปืนดัดแปลง</label>
+                                        <input type="number" class="form-control w-25 d-inline text-center"
+                                            name="gun_modified" id="gun_modified" value=<%=pointdata.gun_modified%>>
+                                    </div>
                                 </div>
+                            </div>
+
+                        </div>
+
+                        <!-- ammunition-->
+                        <div class='card bg-dark text-white mt-2'>
+                            <div class="card-header ">
+                                <div class="d-flex justify-content-between">
+                                    เครื่องยุทธภัณฑ์
+                                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+                                        id="ammunition_header" data-bs-toggle='collapse' aria-expanded="false"
+                                        data-bs-target="#ammunition_set"></button>
+                                </div>
+                            </div>
+                            <div class="collapse" id="ammunition_set" aria-labelledby="ammunition_header">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="barrel">ลำกล้อง(ชิ้น)</label>
+                                        <input type="number" class="form-control w-25 d-inline text-center"
+                                            name="barrel" id="barrel" value=<%=pointdata.barrel%>>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="trigger">ชุดลั่นไก(ชิ้น)</label>
+                                        <input type="number" class="form-control w-25 d-inline text-center"
+                                            name="trigger" id="trigger" value=<%=pointdata.trigger%>>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="bolt_action">ชุดลูกเลื่อน(ชิ้น)</label>
+                                        <input type="number" name="bolt_action" id="bolt_action"
+                                            value=<%=pointdata.bolt_action%>
+                                        class='form-control w-25 d-inline text-center'>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="magazine">ซองกระสุน(แม็กกระซีน)</label>
+                                        <input type="number" name="magazine" id="magazine" value=<%=pointdata.magazine%>
+                                        class='form-control w-25 d-inline text-center'>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="silencer">ปลอกลดเสียง(ชิ้น)</label>
+                                        <input type="number" name="silencer" id="silencer" value=<%=pointdata.silencer%>
+                                        class='form-control w-25 d-inline text-center'>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="light_absorb">ปลอกลดแสง(ชิ้น)</label>
+                                        <input type="number" name="light_absorb" id="light_absorb"
+                                            value=<%=pointdata.light_absorb%>
+                                        class='form-control w-25 d-inline text-center'>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="scope">กล้องเล็ง(ชิ้น)</label>
+                                        <input type="number" name="scope" id="scope" value=<%=pointdata.scope%>
+                                        class='form-control w-25 d-inline text-center'>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="explosive">วัตถุระเบิด</label>
+                                        <input type="number" class="form-control w-25 d-inline text-center"
+                                            name="explosive" id="explosive" value=<%=pointdata.explosive%>>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!--ammo-->
+                        <div class="card mt-2 bg-dark text-white ">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between">
+                                    เครื่องกระสุน
+                                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+                                        id="ammo_header" data-bs-toggle='collapse' aria-expanded="false"
+                                        data-bs-target="#ammo_set"></button>
+                                </div>
+                            </div>
+                            <div class="collapse" id='ammo_set' aria-labelledby="ammo_header">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="ammo">ชนิด 9 มม.</label>
+                                        <input type="number" class="form-control w-25 text-center" name="ammo_9mm"
+                                            value=<%=pointdata.ammo_9mm%>>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="ammo_11">ชนิด 11 มม.</label>
+                                        <input type="number" class="form-control w-25 text-center" name="ammo_11mm"
+                                            id="ammo_11" value=<%=pointdata.ammo_11mm%>>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="ammo_22">ชนิด .22 </label>
+                                        <input type="number" class="form-control w-25 text-center" name="ammo_22"
+                                            id="ammo_22" value=<%=pointdata.ammo_22%>>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="ammo_38">ชนิด .38 </label>
+                                        <input type="number" class="form-control w-25 text-center" name="ammo_38"
+                                            id="ammo_38" value=<%=pointdata.ammo_38%>>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="ammo_380">ชนิด .380</label>
+                                        <input type="number" class="form-control w-25 text-center" name="ammo_380"
+                                            id="ammo_380" value=<%=pointdata.ammo_380%>>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="ammo_357">ชนิด .357</label>
+                                        <input type="number" class="form-control w-25 text-center" name="ammo_357"
+                                            id="ammo_357" value=<%=pointdata.ammo_357 %>>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="ammo_556">ชนิด 5.56</label>
+                                        <input type="number" class="form-control w-25 text-center" name="ammo_556"
+                                            id="ammo_556" value=<%=pointdata.ammo_556 %>>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="ammo_762">ชนิด 7.62</label>
+                                        <input type="number" class="form-control w-25 text-center" name="ammo_762"
+                                            id="ammo_762" value=<%=pointdata.ammo_762 %>>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="ammo_airgun">กระสุนหัวร่ม</label>
+                                        <input type="number" class="form-control w-25 text-center" name="ammo_airgun"
+                                            id="ammo_airgun" value=<%=pointdata.ammo_airgun %>>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <label for="ammo_shotshell">กระสุนลูกซอง</label>
+                                        <input type="number" class="form-control w-25 text-center" name="ammo_shotshell"
+                                            id="ammo_shotshell" value=<%=pointdata.ammo_shotshell %>>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <label for="etc" class="col-form-label">อื่นๆ</label>
+                            <div class="col">
+                                <input type="text" class="form-control" name="etc" id="etc"
+                                    placeholder="เช่นยาบ้า 10,000 เม็ด">
                             </div>
                         </div>
 
                     </div>
+                </div>
 
-                    <!-- ammunition-->
-                    <div class='card bg-dark text-white mt-2'>
-                        <div class="card-header ">
-                            <div class="d-flex justify-content-between">
-                                เครื่องยุทธภัณฑ์
-                                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
-                                    id="ammunition_header" data-bs-toggle='collapse' aria-expanded="false"
-                                    data-bs-target="#ammunition_set"></button>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="checkfield()"
+                data-bs-target="#checkmodal">Submit</button>
+            <br>
+
+            <!-- Modal check -->
+            <div class="modal fade" id="checkmodal" tabindex="-1" aria-labelledby="checkmodalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <!-- <button type="button" class="btn-close"  onclick="loading()" data-bs-dismiss="modal" aria-label="Close"></button> -->
+                        </div>
+                        <div class="modal-body">
+                            <h5 class="modal-title text-center">กรุณาตรวจสอบข้อมูลอีกครั้งก่อนดำเนินการ
+                            </h5>
+                            <div class="d-flex mt-2 justify-content-center">
+                                <div class="spinner-border" id="loading" style="display:none;" role="status"></div>
                             </div>
                         </div>
-                        <div class="collapse" id="ammunition_set" aria-labelledby="ammunition_header">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="barrel">ลำกล้อง(ชิ้น)</label>
-                                    <input type="number" class="form-control w-25 d-inline text-center" name="barrel"
-                                        id="barrel" value=<%= pointdata.barrel%>>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="trigger">ชุดลั่นไก(ชิ้น)</label>
-                                    <input type="number" class="form-control w-25 d-inline text-center" name="trigger"
-                                        id="trigger" value=<%= pointdata.trigger%>>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="bolt_action">ชุดลูกเลื่อน(ชิ้น)</label>
-                                    <input type="number" name="bolt_action" id="bolt_action" value=<%= pointdata.bolt_action%>
-                                        class='form-control w-25 d-inline text-center'>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="magazine">ซองกระสุน(แม็กกระซีน)</label>
-                                    <input type="number" name="magazine" id="magazine" value=<%= pointdata.magazine%>
-                                        class='form-control w-25 d-inline text-center'>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="silencer">ปลอกลดเสียง(ชิ้น)</label>
-                                    <input type="number" name="silencer" id="silencer" value=<%= pointdata.silencer%>
-                                        class='form-control w-25 d-inline text-center'>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="light_absorb">ปลอกลดแสง(ชิ้น)</label>
-                                    <input type="number" name="light_absorb" id="light_absorb" value=<%= pointdata.light_absorb%>
-                                        class='form-control w-25 d-inline text-center'>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="scope">กล้องเล็ง(ชิ้น)</label>
-                                    <input type="number" name="scope" id="scope" value=<%= pointdata.scope%>
-                                        class='form-control w-25 d-inline text-center'>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="explosive">วัตถุระเบิด</label>
-                                    <input type="number" class="form-control w-25 d-inline text-center" name="explosive"
-                                        id="explosive" value=<%= pointdata.explosive%>>
-                                </div>
-
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!--ammo-->
-                    <div class="card mt-2 bg-dark text-white ">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between">
-                                เครื่องกระสุน
-                                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="ammo_header"
-                                    data-bs-toggle='collapse' aria-expanded="false" data-bs-target="#ammo_set"></button>
-                            </div>
-                        </div>
-                        <div class="collapse" id='ammo_set' aria-labelledby="ammo_header">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="ammo">ชนิด 9 มม.</label>
-                                    <input type="number" class="form-control w-25 text-center" name="ammo_9mm" value=<%= pointdata.ammo_9mm%>>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="ammo_11">ชนิด 11 มม.</label>
-                                    <input type="number" class="form-control w-25 text-center" name="ammo_11mm"
-                                        id="ammo_11" value=<%= pointdata.ammo_11mm%>>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="ammo_22">ชนิด .22 </label>
-                                    <input type="number" class="form-control w-25 text-center" name="ammo_22"
-                                        id="ammo_22" value=<%= pointdata.ammo_22%>>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="ammo_38">ชนิด .38 </label>
-                                    <input type="number" class="form-control w-25 text-center" name="ammo_38"
-                                        id="ammo_38" value=<%= pointdata.ammo_38%>>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="ammo_380">ชนิด .380</label>
-                                    <input type="number" class="form-control w-25 text-center" name="ammo_380"
-                                        id="ammo_380" value=<%= pointdata.ammo_380%>>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="ammo_357">ชนิด .357</label>
-                                    <input type="number" class="form-control w-25 text-center" name="ammo_357"
-                                        id="ammo_357" value=<%= pointdata.ammo_357 %>>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="ammo_556">ชนิด 5.56</label>
-                                    <input type="number" class="form-control w-25 text-center" name="ammo_556"
-                                        id="ammo_556" value=<%= pointdata.ammo_556 %>>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="ammo_762">ชนิด 7.62</label>
-                                    <input type="number" class="form-control w-25 text-center" name="ammo_762"
-                                        id="ammo_762" value=<%= pointdata.ammo_762 %>>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="ammo_airgun">กระสุนหัวร่ม</label>
-                                    <input type="number" class="form-control w-25 text-center" name="ammo_airgun"
-                                        id="ammo_airgun" value=<%= pointdata.ammo_airgun %>>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <label for="ammo_shotshell">กระสุนลูกซอง</label>
-                                    <input type="number" class="form-control w-25 text-center" name="ammo_shotshell"
-                                        id="ammo_shotshell" value=<%= pointdata.ammo_shotshell %>>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="row">
-                        <label for="etc" class="col-form-label">อื่นๆ</label>
-                        <div class="col">
-                            <input type="text" class="form-control" name="etc" id="etc"
-                                placeholder="เช่นยาบ้า 10,000 เม็ด">
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="hideloading()"
+                                data-bs-dismiss="modal">ปิด</button>
+                            <button type="submit" onclick="loading()" class="btn btn-primary">บันทึกข้อมูล</button>
                         </div>
                     </div>
-
                 </div>
             </div>
-
-        </div>
-        <button type="button" class="btn btn-primary" onclick="checkfield()"
-            data-bs-target="#checkmodal">Submit</button>
-        <br>
-
-        <!-- Modal -->
-        <div class="modal fade" id="checkmodal" tabindex="-1" aria-labelledby="checkmodalLabel" aria-hidden="true">
+            <!-- Modal required -->
+            <div class="modal fade" id="field0" tabindex='-1' aria-labelledby="field0Label" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        </div>
+                        <div class="modal-body">
+                            <h6 class="modal-title text-center" id="field0Label">กรุณากรอก
+                                สถานะเข้าค้น,รหัสจุดค้น,ชื่อหัวหน้าชุด ให้ครบถ้วน
+                            </h6>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal sos -->
+            <div class="modal fade" id="sosmodal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <h5 class="modal-title text-center">ยืนยันการขอความช่วยเหลือ
+                            </h5>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                            <button type="button" onclick="emergency()" data-bs-dismiss="modal"
+                                class="btn btn-primary">ยืนยัน</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal sos success -->
+            <div class="modal fade" id="sossuccess" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <h5 class="modal-title text-center">ศปก.รับทราบเหตุฉุกเฉิน
+                            </h5>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal sos failed -->
+            <!-- <div class="modal fade" id="sosfailed" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <!-- <button type="button" class="btn-close"  onclick="loading()" data-bs-dismiss="modal" aria-label="Close"></button> -->
-                    </div>
                     <div class="modal-body">
-                        <h5 class="modal-title text-center" id="checkmodalLabel">กรุณาตรวจสอบข้อมูลอีกครั้งก่อนดำเนินการ
-                        </h5>
-                        <div class="d-flex mt-2 justify-content-center">
-                            <div class="spinner-border" id="loading" style="display:none;" role="status"></div>
-                        </div>
+                        <h5 class="modal-title text-center">เกิดเหตุขัดข้อง</h5>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="hideloading()"
-                            data-bs-dismiss="modal">Close</button>
-                        <button type="submit" onclick="loading()" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
                     </div>
                 </div>
             </div>
+        </div> -->
+            </form>
         </div>
-        <div class="modal fade" id="field0" tabindex='-1' aria-labelledby="field0Label" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                    </div>
-                    <div class="modal-body">
-                        <h6 class="modal-title text-center" id="field0Label">กรุณากรอก
-                            สถานะเข้าค้น,รหัสจุดค้น,ชื่อหัวหน้าชุด ให้ครบถ้วน
-                        </h6>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        </form>
-    </div>
 
 </body>
 
 </html>
 <script type="text/javascript">
+
     criminal_cal()
     normalguns_cal()
     function showFound(status) {
@@ -469,4 +513,28 @@
         document.getElementById('normalguns').value = parseInt(regis.value) + parseInt(unregis.value)
     }
 
+    async function emergency() {
+        let code = document.getElementById('placeid').value
+        let modalsuccess = new bootstrap.Modal(document.getElementById('sossuccess'))
+        let modalfailed = new bootstrap.Modal(document.getElementById('sosfailed'))
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                'code': code,
+            })
+        };
+        try {
+            let response = await fetch('/emergency', requestOptions)
+            if (response.status == 200) {
+                modalsuccess.toggle()
+            } else {
+                modalfailed.toggle()
+            }
+        } catch (err) {
+            console.error(err)
+        }
+    }
 </script>
