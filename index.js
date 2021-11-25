@@ -196,7 +196,7 @@ app.get("/buck/:code/:filename", async (req, res) => {
     fs.readFile(path.join('./data',code,filename), function(err, data) {
         if (err) {
             res.writeHead(404, 'Not Found');
-            res.write(`404: File Not Found! at: ${path.join('./data',req.params.code,req.params.filename)}`);
+            res.write(`404: File Not Found! at: ${path.join('./data',code,filename)}`);
             return res.end();
         }
         res.statusCode = 200;
