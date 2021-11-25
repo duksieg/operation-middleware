@@ -7,6 +7,7 @@ const fs = require('fs')
 const cor = require('cors')
 const ggutils = require('./src/ggutils')
 const { json, urlencoded } = require('body-parser')
+const path = require('path')
 app.set('view engine', 'ejs');
 app.use(cor())
 app.use(express.static("public"));
@@ -31,15 +32,15 @@ function initialload() {
 
 var map = initialload()
 
-app.get("/", async(req, res) => {
+app.get("/", async (req, res) => {
     res.render('index')
 })
 
-app.get('/operation', async(req, res) => {
+app.get('/operation', async (req, res) => {
     res.render('operationmain')
 })
 
-app.get('/operationform/', async(req, res) => {
+app.get('/operationform/', async (req, res) => {
     if (req.query['code'] != '') {
         let code = req.query['code'].toLocaleUpperCase()
         let loadpoint = await ggsheet.loadpoint(code)
@@ -50,11 +51,11 @@ app.get('/operationform/', async(req, res) => {
 
 })
 
-app.get('/casing', async(req, res) => {
+app.get('/casing', async (req, res) => {
     res.render('casingmain')
 })
 
-app.get('/casingform/', async(req, res) => {
+app.get('/casingform/', async (req, res) => {
     if (req.query['code'] != '') {
         let code_id = req.query['code'].toLocaleUpperCase()
         let main_data = await ggsheet.getMainbyCode(code_id)
@@ -72,7 +73,7 @@ app.get('/casingform/', async(req, res) => {
 })
 
 
-app.post("/saverecord", async(req, res) => {
+app.post("/saverecord", async (req, res) => {
     let checkstatus
     try {
         if (req.body.placeid != null || req.body.placeid != '') {
@@ -98,10 +99,10 @@ app.post("/saverecord", async(req, res) => {
     }
 })
 
-app.post('/casingrecord', async(req, res) => {
+app.post('/casingrecord', async (req, res) => {
 
     console.log(req.body)
-        // console.log(req.files)
+    // console.log(req.files)
     let code = req.body.code
     code.toString().toUpperCase()
     if (req.body != null && req.body.code != null) {
@@ -129,10 +130,10 @@ app.post('/casingrecord', async(req, res) => {
         }
 
         let response = await ggsheet.updateCasingRow(req.body)
-        if(response){
+        if (response) {
             res.render('success')
-        }else{
-            res.render('failure',{reason:response})
+        } else {
+            res.render('failure', { reason: response })
         }
     } else {
         res.sendStatus('404')
@@ -140,7 +141,7 @@ app.post('/casingrecord', async(req, res) => {
 
 })
 
-app.get('/personal', async(req, res) => {
+app.get('/personal', async (req, res) => {
     if (req.query['code'] != undefined) {
         let code = req.query['code'].toString().toUpperCase()
         let op_inform = await ggsheet.getopbyCode(code)
@@ -149,29 +150,34 @@ app.get('/personal', async(req, res) => {
         let images_person = await util.getpersonimage(code)
         console.log(op_inform.headerValues)
         if (op_inform != null || op_inform != undefined) {
-            res.render('personaldetail', { evidence: op_inform, images: images_gg ,image_person : images_person , slide:slide })
+            res.render('personaldetail', { evidence: op_inform, images: images_gg, image_person: images_person, slide: slide })
         } else {
-            res.render('notfound',{reason:'ข้อมูลบางส่วนไม่สมบูรณ์'})
+            res.render('notfound', { reason: 'ข้อมูลบางส่วนไม่สมบูรณ์' })
         }
     } else {
         res.render('personalmain')
     }
 })
 
-app.post('/emergency',async (req,res)=>{
-if(req.body.code != null && req.body.code != undefined)   {
-    let setsos = ggsheet.setsos(req.body.code)
-    if(setsos){
-        res.sendStatus(200)
-    }else{
+app.post('/emergency', async (req, res) => {
+    if (req.body.code != null && req.body.code != undefined) {
+        let setsos = ggsheet.setsos(req.body.code)
+        if (setsos) {
+            res.sendStatus(200)
+        } else {
+            res.sendStatus(500)
+        }
+    } else {
         res.sendStatus(500)
     }
-}else{
-    res.sendStatus(500)
-}
 })
 
-app.get('/test', async(req, res) => {
+app.get('/map', async (req, res) => {
+    let data = await ggsheet.loadSheet('operation')
+    res.render('map', { data: data })
+})
+
+app.get('/test', async (req, res) => {
     try {
         let reps = await util.getpersonimage('1C2')
         console.log(reps)
@@ -180,6 +186,23 @@ app.get('/test', async(req, res) => {
         console.error(err)
         res.status(500)
     }
+
+})
+
+app.get("/buck/:code/:filename", async (req, res) => {
+    let code = req.params.code
+    let filename = req.params.filename
+
+    fs.readFile(path.join('./data',code,filename), function(err, data) {
+        if (err) {
+            res.writeHead(404, 'Not Found');
+            res.write(`404: File Not Found! at: ${path.join('./data',req.params.code,req.params.filename)}`);
+            return res.end();
+        }
+        res.statusCode = 200;
+        res.write(data);
+        return res.end();
+    });
 
 })
 

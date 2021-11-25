@@ -47,6 +47,21 @@ module.exports = {
         return arryfile
     },
 
+    getcontentfile : getcontentfile = async (code,filename)=>{
+        let filepath = path.join(folderdata,code,filename)
+
+        fs.readFile(filepath, function(err, data) {
+            if (data != null) {
+                console.log(data)
+                return data;
+            }else if(err){
+                console.error(err)
+                return false
+            }
+        });
+
+    },
+
     getpersonimage: getpersonimage = async(code) => {
         let folderpath = path.join(folderdata, code)
         let files = fs.readdirSync(folderpath).filter(fn => fn.startsWith('personalimage14'));
