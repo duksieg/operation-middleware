@@ -190,7 +190,7 @@ app.get('/test', async (req, res) => {
 })
 
 app.get('/listfile/:code',async(req,res)=>{
-    let code = req.params.code
+    let code = req.params.code.toString().toLocaleUpperCase()
     try{
         let listfile = await util.listfileinFolder(code)
         if(listfile.length > 0){
