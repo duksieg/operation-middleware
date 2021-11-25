@@ -189,6 +189,21 @@ app.get('/test', async (req, res) => {
 
 })
 
+app.get('/listfile/:code',async(req,res)=>{
+    let code = req.params.code
+    try{
+        let listfile = await util.listfileinFolder(code)
+        if(listfile.length > 0){
+            res.send(JSON.stringify(listfile))
+        }else{
+            res.sendStatus(404)
+            
+        }
+    }catch(err){
+        res.send(err)
+    }
+})
+
 app.get("/buck/:code/:filename", async (req, res) => {
     let code = req.params.code
     let filename = req.params.filename
