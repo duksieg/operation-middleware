@@ -52,7 +52,7 @@ app.get('/operationform/', async (req, res) => {
     }
 
 })
-app.get('/importlinedata', async (req, res) => {
+app.post('/importlinedata', async (req, res) => {
     try {
         let linemsg = req.body.linemsg
         //let linemsg = "66645494758		10:32:34Subscriber is on 4G/5G: YES    Source: Instant Geo    Latitude: 13.776    Longitude: 100.724    MSISDN: 66645494789    IMSI: 520002033042287    eCID: 41205962    TAC: 1077    LCID: 202    eNB: 160960    Operator Name: CAT Telecom Public Company    Home Country: Thailand    Home MCC: 520    Home MNC: 4    Roaming: NO    Last Collected Result:    24.03.2022 10:38:34"
