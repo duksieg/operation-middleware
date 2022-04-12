@@ -61,6 +61,8 @@ app.get('/importlinedata', async (req, res) => {
         let result = firebasemodule.addNewPoint('targetNorman', pointObj)
         if (result) {
             res.sendStatus(200)
+        }else{
+            res.sendStatus(500)
         }
     } catch (err) {
         console.log(err);
