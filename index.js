@@ -54,8 +54,7 @@ app.get('/operationform/', async (req, res) => {
 })
 app.post('/importlinedata', async (req, res) => {
     try {
-        console.log(req.body)
-        let linemsg = req.body.linemsg
+        let linemsg = req.body
         let pointObj = utilities.splitLineBase(linemsg)
         let result = firebasemodule.addNewPoint('targetNorman', pointObj)
         if (result) {
