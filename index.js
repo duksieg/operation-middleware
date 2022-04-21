@@ -3,13 +3,11 @@ const app = express()
 var ggsheet = require('./src/ggsheet')
 var util = require('./src/util')
 const fileupload = require('express-fileupload')
-const fs = require('fs')
+const jwt = require('jsonwebtoken')
 const cor = require('cors')
 const ggutils = require('./src/ggutils')
 const utilities = require('./utilities')
 const firebasemodule =require('./firebaseModule')
-const { json, urlencoded } = require('body-parser')
-const path = require('path')
 app.set('view engine', 'ejs');
 app.use(cor())
 app.use(express.static("public"));
@@ -196,61 +194,73 @@ app.post('/emergency', async (req, res) => {
     }
 })
 
-app.get('/map', async (req, res) => {
-    let data = await ggsheet.loadSheet('operation')
-    res.render('map', { data: data })
+app.get('/retrievedata', async (req, res) => {
+    let resp = await firebasemodule.getData(req.query.opName)
+    res.send(resp)
 })
 
-app.get('/test', async (req, res) => {
-    try {
-        let reps = await util.getpersonimage('1C2')
-        console.log(reps)
-        res.send(reps)
-    } catch (err) {
-        console.error(err)
-        res.status(500)
+app.post('/updateevidence', async (req, res) => {
+    utilities.updateEvidence(req.body.opName, req.files.filestore, req.body.item)
+    res.sendStatus(200)
+})
+
+app.post('/importexcel', async (req, res) => {
+    const map = {
+        'row': 'no',
+        'target_search': 'searchNo',
+        'target': 'targetNo',
+        'name_target': 'targetName',
+        'idcard': 'targetId',
+        'pic': 'targetPic',
+        'address': 'targetAddress'
+    }
+    if (req.files) {
+        try {
+            readXlsxFile(req.files.filestore.tempFilePath, { map }).then(({ rows }) => {
+                rows.forEach(element => {
+                    console.log('Process push target')
+                    utilities.addNewTarget(req.body.opName, element)
+                });
+            })
+            res.sendStatus(200)
+        } catch (err) {
+            console.error(err)
+            res.sendStatus(500)
+        }
+    } else {
+        console.log('file zero')
+        res.sendStatus(500)
     }
 
 })
 
-app.get('/listfile/:code',async(req,res)=>{
-    let code = req.params.code.toString().toLocaleUpperCase()
-    try{
-        let listfile = await util.listfileinFolder(code)
-        if(listfile.length > 0){
-            res.send(JSON.stringify(listfile))
-        }else{
-            res.sendStatus(404)
-            
-        }
-    }catch(err){
-        res.send(err)
+app.post('/loginOp', async (req, res) => {
+    let ispass = await firebasemodule.checkLogin(req.body.opName.toString().trim(), req.body.opPass.toString().trim())
+    if (ispass) {
+        let tokenStr = jwt.sign({ id: req.body.opName }, 'operationCSD', { expiresIn: 60 * 60 * 12 })
+        res.status(200).send({ token: tokenStr })
+    } else {
+        res.status(200).send({ token: '' })
     }
 })
 
-app.get("/buck/:code/:filename", async (req, res) => {
-    let code = req.params.code
-    let filename = req.params.filename
-
-    fs.readFile(path.join('./data',code,filename), function(err, data) {
-        if (err) {
-            res.writeHead(404, 'Not Found');
-            res.write(`404: File Not Found! at: ${path.join('./data',code,filename)}`);
-            return res.end();
+app.post('/create-rtdb', async (req, res) => {
+    if (req.body.opName != null && req.body.opPass != null) {
+        let checkIsDBExist = await firebasemodule.checkIsDBExist(req.body.opName)
+        if (checkIsDBExist == true) {
+            console.log('already exist');
+            res.status(200).send({ 'message': 'already exist' })
+        } else if (checkIsDBExist == false) {
+            let result = await firebasemodule.setNewRTDB(req.body.opName, req.body.opPass)
+            if (result == true) {
+                console.log('create operation success' + req.body.opName + "  passoword : " + req.body.opPass)
+                res.status(200).send({ 'message': 'success' })
+            } else {
+                res.status(200).send({ 'message': result })
+            }
+        } else {
+            res.send({ status: checkIsDBExist })
         }
-        res.statusCode = 200;
-        res.write(data);
-        return res.end();
-    });
 
+    }
 })
-
-
-// app.get("/detail", async (req, res) => {
-//     let respond = await ggsheet.getRowdata()
-//     let jsonObj = new Object()
-//     let jsonstring
-//     jsonObj.records = respond
-//     jsonstring = JSON.stringify(jsonObj)
-//     res.send(jsonstring)
-// })
