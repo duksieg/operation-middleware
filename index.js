@@ -52,11 +52,12 @@ app.get('/operationform/', async (req, res) => {
 })
 app.post('/importlinedata', async (req, res) => {
     try {
+        let opname = req.headers.authorization
         let linemsg = req.body
         let strlinemsg= Object.keys(linemsg)[0]
         let pointObj = utilities.splitLineBase(strlinemsg)
         if(pointObj!=null){
-            let result = await firebasemodule.addNewPoint('targetNorman', pointObj)
+            let result = await firebasemodule.addNewPoint(opname, pointObj)
             if (result) {
                 res.sendStatus(200)
             }else{
