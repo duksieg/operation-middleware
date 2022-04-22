@@ -141,29 +141,31 @@ async function addNewTarget(opName, dataObj) {
 async function addNewPoint(opName, dataObj) {
     const rtdb_point = firebasedb.ref(rtdb, `${opName}/points/`)
     const rtdb_tel = firebasedb.ref(rtdb, `${opName}/points/${dataObj.MSISDN}`)
+    let status
     try {
         let result = await firebasedb.get(child(rtdb_point, dataObj.MSISDN))
         if (result.exists()) {
             pointObj = result.val()
             console.log('found tel number' + dataObj.MSISDN)
-            push(rtdb_tel, dataObj).then(() => {
-                console.log('update success')
-                return true
-            }).catch((error) => {
-                console.log(error)
-                return false
-            });
-
+            try{
+                let resultpush = await push(rtdb_tel, dataObj)
+                status=true
+                console.log(resultpush);
+            }catch(err){
+                console.error(err)
+                status=false
+            }
 
         } else {
             console.log('not found for tel ' + dataObj.MSISDN)
             firebasedb.push(rtdb_tel, dataObj)
-            return true
+            status = true
         }
     } catch (err) {
         console.error(err);
-        return false
+        status = false
     }
+    return status
 }
 
 

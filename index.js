@@ -58,9 +58,11 @@ app.post('/importlinedata', async (req, res) => {
         let pointObj = utilities.splitLineBase(strlinemsg)
         if(pointObj!=null){
             let result = await firebasemodule.addNewPoint(opname, pointObj)
-            if (result) {
+            if (result==true) {
+                console.log('return 200')
                 res.sendStatus(200)
             }else{
+                console.log('return 500')
                 res.sendStatus(500)
             }
         }else{

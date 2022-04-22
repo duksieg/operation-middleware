@@ -38,7 +38,7 @@ function getdatetimeraw(rawdatetime) {
         console.log("Failed parse datetime to millisecond");
         newDatetime = ''
     }
-    console.log("Date time : "+newDatetime);
+    console.log("Date time : " + newDatetime);
     return newDatetime
 }
 
@@ -73,11 +73,11 @@ function format1ToObject(splitText, objtemplate) {
 
 function format2ToObject(splitText, objtemplate) {
     let lat, long
-    splitText.forEach(element => {
+    splitText.forEach((element, index) => {
         element.toLowerCase().search("subscriber is on") != -1 ? objtemplate.Subscriber4G5G = true : ''
         element.toLowerCase().search("source") != -1 ? objtemplate.Source = element.split(":")[1].trim() : ''
-        element.toLowerCase().search("latitude") != -1 ? lat = element.split(":")[1].trim() : ''
-        element.toLowerCase().search("longitude") != -1 ? long = element.split(":")[1].trim() : ''
+        element.toLowerCase().search("latitude") != -1 ? lat = element.split(":")[1].replace(',', "").trim() : ''
+        element.toLowerCase().search("longitude") != -1 ? long = element.split(":")[1].replace(',', "").trim() : ''
         element.toLowerCase().search("msisdn") != -1 ? objtemplate.MSISDN = element.split(":")[1].trim() : ''
         element.toLowerCase().search("imsi") != -1 ? objtemplate.IMSI = element.split(":")[1].trim() : ''
         element.toLowerCase().search("ecid") != -1 ? objtemplate.ECID = element.split(":")[1].trim() : ''
@@ -96,15 +96,17 @@ function format2ToObject(splitText, objtemplate) {
     });
     let position = lat + "," + long
     objtemplate.position = position
+    objtemplate.LastCollectMilli = objtemplate.LastCollectResult != '' ? getdatetimeraw(objtemplate.LastCollectResult.replace("ปิดเครื่อง", "").trim()) : ''
+
     return objtemplate
 }
 
 function format3ToObject(splitText, objtemplate) {
     let lat, long
-    splitText.forEach(element => {
+    splitText.forEach((element, index) => {
         element.toLowerCase().search("source") != -1 ? objtemplate.Source = element.split(":")[1].trim() : ''
-        element.toLowerCase().search("latitude") != -1 ? lat = element.split(":")[1].trim() : ''
-        element.toLowerCase().search("longitude") != -1 ? long = element.split(":")[1].trim() : ''
+        element.toLowerCase().search("latitude") != -1 ? lat = element.split(":")[1].replace(',', "").trim() : ''
+        element.toLowerCase().search("longitude") != -1 ? long = element.split(":")[1].replace(',', "").trim() : ''
         element.toLowerCase().search("msisdn") != -1 ? objtemplate.MSISDN = element.split(":")[1].trim() : ''
         element.toLowerCase().search("imsi") != -1 ? objtemplate.IMSI = element.split(":")[1].trim() : ''
         element.toLowerCase().search("lac") != -1 ? objtemplate.LAC = element.split(":")[1].trim() : ''
@@ -121,8 +123,37 @@ function format3ToObject(splitText, objtemplate) {
     });
     let position = lat + "," + long
     objtemplate.position = position
+    objtemplate.LastCollectMilli = objtemplate.LastCollectResult != '' ? getdatetimeraw(objtemplate.LastCollectResult.replace("ปิดเครื่อง", "").trim()) : ''
     return objtemplate
 }
+
+function formatETC(splitText, objtemplate) {
+    let lat, long
+    splitText.forEach((element, index) => {
+        element.toLowerCase().search("source") != -1 ? objtemplate.Source = element.split(":")[1].trim() : ''
+        element.toLowerCase().search("latitude") != -1 ? lat = element.split(":")[1].replace(',', "").trim() : ''
+        element.toLowerCase().search("longitude") != -1 ? long = element.split(":")[1].replace(',', "").trim() : ''
+        element.toLowerCase().search("msisdn") != -1 ? objtemplate.MSISDN = element.split(":")[1].trim() : ''
+        element.toLowerCase().search("imsi") != -1 ? objtemplate.IMSI = element.split(":")[1].trim() : ''
+        element.toLowerCase().search("lac") != -1 ? objtemplate.LAC = element.split(":")[1].trim() : ''
+        element.toLowerCase().search("cell od") != -1 ? objtemplate.CellId = element.split(":")[1].trim() : ''
+        element.toLowerCase().search("subscriber status") != -1 ? objtemplate.SubscriberStatus = element.split(":")[1].trim() : ''
+        element.toLowerCase().search("operator name") != -1 ? objtemplate.OperatorName = element.split(":")[1].trim() : ''
+        element.toLowerCase().search("home country") != -1 ? objtemplate.CountryName = element.split(":")[1].trim() : ''
+        element.toLowerCase().search("home mcc") != -1 ? objtemplate.MCC = element.split(":")[1].trim() : ''
+        element.toLowerCase().search("home mnc") != -1 ? objtemplate.MNC = element.split(":")[1].trim() : ''
+        element.toLowerCase().search("roaming") != -1 ? objtemplate.Roaming = element.split(":")[1].trim() : ''
+        if (element.match(lstCollect)) {
+            objtemplate.LastCollectResult = element.replace("ปิดเครื่อง", "").trim()
+        }
+    });
+    let position = lat + "," + long
+    objtemplate.position = position
+    objtemplate.LastCollectMilli = objtemplate.LastCollectResult != '' ? getdatetimeraw(objtemplate.LastCollectResult.replace("ปิดเครื่อง", "").trim()) : ''
+
+    return objtemplate
+}
+
 function splitLineBase(linemsg) {
     let objtemplate = {
         Subscriber4G5G: '',
@@ -147,20 +178,29 @@ function splitLineBase(linemsg) {
         stampdatetime: Date.now(),
     }
     let objdata
-    if (linemsg.includes("MSISDN")) {
-        let splitText = linemsg.split("\n")
-        //format 1
-        if (splitText[0].includes("Subscriber")) {
-            objdata = format1ToObject(splitText, objtemplate)
-        } else if (splitText[1].includes("Subscriber")) {
-            objdata = format2ToObject(splitText, objtemplate)
-        } else if (splitText[1].includes("Source")) {
-            objdata = format3ToObject(splitText, objtemplate)
+    try {
+        if (linemsg.includes("MSISDN")) {
+            let splitText = linemsg.split("\n")
+            //format 1
+            if (splitText[0].includes("Subscriber")) {
+                console.log('access format1')
+                objdata = format1ToObject(splitText, objtemplate)
+            } else if (splitText[1].includes("Subscriber")) {
+                console.log('access format2')
+                objdata = format2ToObject(splitText, objtemplate)
+            } else if (splitText[1].includes("Source")) {
+                console.log('access format3')
+                objdata = format3ToObject(splitText, objtemplate)
+            } else {
+                console.log('etc')
+                objdata = formatETC(splitText, objtemplate)
+            }
+            console.log(objdata);
         }
-        objdata.LastCollectMilli = objdata.LastCollectResult !='' ? getdatetimeraw(objdata.LastCollectResult) :''
-        console.log(objdata);
+        return objdata
+    } catch (err) {
+        console.log(err)
     }
-    return objdata
 }
 
 
