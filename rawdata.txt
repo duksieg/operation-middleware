@@ -1,0 +1,36 @@
+Subscriber is on 4G/5G: YES
+
+Source: Instant Geo
+
+ Latitude: 12.708
+
+ Longitude: 101.053
+
+MSISDN: 66949988145
+
+IMSI: 520050420283844
+
+eCID: 80123946
+
+TAC: 33082
+
+LCID: 42
+
+eNB: 312984
+
+Subscriber Status: Idle
+
+Operator Name: DTAC
+
+Home Country: Thailand
+
+Home MCC: 520
+
+Home MNC: 47
+
+Roaming: NO
+
+Last Collected Result:
+
+11.06.2022 10:16:26
+

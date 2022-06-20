@@ -1,22 +1,26 @@
 const express = require('express')
 const app = express()
 var ggsheet = require('./src/ggsheet')
-var util = require('./src/util')
+var util = require('./src/fileUtil')
 const fileupload = require('express-fileupload')
 const jwt = require('jsonwebtoken')
 const cor = require('cors')
-const ggutils = require('./src/ggutils')
-const utilities = require('./utilities')
-const firebasemodule =require('./firebaseModule')
-app.set('view engine', 'ejs');
-app.use(cor())
-app.use(express.static("public"));
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }));
+const utilities = require('./src/utilities')
+const firebasemodule = require('./src/firebaseModule')
+const fs = require('fs')
+const path = require('path')
+const linenoti = require('./src/linenoti')
 app.use(fileupload({
     useTempFiles: true,
     tempFileDir: '/tmp/'
-}));
+}))
+app.set('view engine', 'ejs')
+app.use(cor())
+app.use(express.static("public"))
+app.use(express.static('data'))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
 
 
 function initialload() {
@@ -36,39 +40,27 @@ app.get("/", async (req, res) => {
     res.render('index')
 })
 
-app.get('/operation', async (req, res) => {
-    res.render('operationmain')
-})
-
-app.get('/operationform/', async (req, res) => {
-    if (req.query['code'] != '') {
-        let code = req.query['code'].toLocaleUpperCase()
-        let loadpoint = await ggsheet.loadpoint(code)
-        res.render('operation', { pointdata: loadpoint })
-    } else {
-        res.render('404')
-    }
-
-})
 app.post('/importlinedata', async (req, res) => {
     try {
         let opname = req.headers.authorization
         let linemsg = req.body
-        let strlinemsg= Object.keys(linemsg)[0]
-        let pointObj = utilities.splitLineBase(strlinemsg)
-        if(pointObj!=null){
-            let result = await firebasemodule.addNewPoint(opname, pointObj)
-            if (result==true) {
+        console.log('line msg:' + Object.keys(linemsg)[0])
+        console.log('opName:' + opname)
+        let strlinemsg = Object.keys(linemsg)[0]
+        let result = await utilities.splitLineBase(strlinemsg, opname)
+        if (result != null) {
+            if (result == true) {
                 console.log('return 200')
                 res.sendStatus(200)
-            }else{
+            } else {
                 console.log('return 500')
                 res.sendStatus(500)
             }
-        }else{
+        } else {
+            console.log(result)
             res.sendStatus(500)
         }
-        
+
     } catch (err) {
         console.log(err);
         res.send(err)
@@ -76,112 +68,86 @@ app.post('/importlinedata', async (req, res) => {
 
 })
 
-app.get('/casing', async (req, res) => {
-    res.render('casingmain')
-})
-
-app.get('/casingform/', async (req, res) => {
-    if (req.query['code'] != '') {
-        let code_id = req.query['code'].toLocaleUpperCase()
-        let main_data = await ggsheet.getMainbyCode(code_id)
-        let team_data = await ggsheet.getTeambyCode(code_id)
-        if (main_data != null || main_data != undefined) {
-            res.render('casing', { main: main_data, team: team_data })
-        } else {
-            res.render('404')
+app.post('/matchingtel', async (req, res) => {
+    let imagesFolder = `./data/${req.body.opName}/targetImages`
+    console.log('Matching tel')
+    if (req.body.tel != undefined && req.body.opName != undefined && req.files != null) {
+        try {
+            firebasemodule.updateMatchingTel(req.body)
+            fs.rename(req.files.filestore.tempFilePath, path.join(imagesFolder, req.body.tel + `_${req.body.name}_` + path.extname(req.files.filestore.name)), function (err) {
+                if (err) throw err
+                res.sendStatus(200)
+            })
+        } catch (err) {
+            console.error(err)
+            res.sendStatus(500)
         }
-
     } else {
-        res.render('404')
+        firebasemodule.updateMatchingTel(req.body)
+        console.log('Add without image')
+        res.sendStatus(200)
     }
-
 })
+app.post('/manualaddbase', async (req, res) => {
+    let result = utilities.webSetOther(req.body)
+    if (req.files != null) {
+        let etcFolder = `./data/${req.body.opName}/homeImages`
+        try {
+            util.creatlocalfolder(req.body.opName)
+            fs.rename(req.files.filestore.tempFilePath, path.join(etcFolder, req.body.tel + path.extname(req.files.filestore.name)), function (err) {
+                if (err) throw err
 
-
-app.post("/saverecord", async (req, res) => {
-    let checkstatus
-    try {
-        if (req.body.placeid != null || req.body.placeid != '') {
-            if (req.files != null) {
-                checkstatus = await ggsheet.updateRow(req.body, req.files.filestore)
-            } else {
-                checkstatus = await ggsheet.updateRow(req.body, '')
-            }
-
-            if (checkstatus == true) {
-                res.render('success')
-            } else {
-                res.render('failure', { reason: checkstatus })
-            }
-        } else {
-            console.error('Placeid is null')
-            res.render('failure', { reason: 'ไม่ได้ทำการกรอกรหัสจุดค้น' })
+            })
+            if (result) res.sendStatus(200)
+        } catch (err) {
+            console.error(err)
+            res.sendStatus(500)
         }
-
-    } catch (err) {
-        console.error(res.checkstatus + " : " + err)
-        res.render('failure', { reason: err })
     }
 })
 
-app.post('/casingrecord', async (req, res) => {
-
+app.post('/lineMonitor', async (req, res) => {
     console.log(req.body)
-    // console.log(req.files)
-    let code = req.body.code
-    code.toString().toUpperCase()
-    if (req.body != null && req.body.code != null) {
-        util.creatlocalfolder(code)
-
-        if (req.files != null) {
-            if (req.files.image14 != null) {
-                util.createimage(req.files.image14, 'image14', code)
+    let event = req.body.events[0]
+    let msg = event.message.text
+    let datenum = Date.now()
+    let dateresult = new Date(datenum).toLocaleTimeString()
+    let replyToken = event.replyToken
+    let replysuccess = '\nบันทึกข้อมูลเรียบร้อยแล้ว \n Map_tracking:\nhttps://gunman.csd.go.th/opmanager/tracert/op_taiwai'
+    let replyfalse = 'ไม่สามารถเพิ่มข้อมูลได้ กำลังทำการแก้ไข'
+    if (msg.search("MSISDN") != -1) {
+        console.log('Line incoming :' + dateresult)
+        console.log(msg)
+        let result = await utilities.splitLineBase(msg, 'op_taiwai')
+        if (result != null) {
+            if (result == true) {
+                console.log('return 200')
+                let distanceMsg = await utilities.lineTelDistance(msg)
+                if (distanceMsg != '') {
+                    replysuccess = distanceMsg.concat(replysuccess)
+                    linenoti.linenoti(replyToken, replysuccess)
+                } else {
+                    linenoti.linenoti(replyToken, replysuccess)
+                }
+                res.sendStatus(200)
+            } else {
+                console.log('return 500')
+                linenoti.linenoti(replyToken, replyfalse)
+                res.sendStatus(500)
             }
-            if (req.files.personalimage14 != null) {
-                util.createimage(req.files.personalimage14, 'personalimage14', code)
-            }
-            if (req.files.maptohome != null) {
-                util.createimage(req.files.maptohome, 'maptohome', code)
-            }
-            if (req.files.imagehome != null) {
-                util.createimage(req.files.imagehome, 'imagehome', code)
-            }
-            if (req.files.imagemobile != null) {
-                util.createimage(req.files.imagemobile, 'imagemobile', code)
-            }
-            if (req.files.imageetc != null) {
-                util.createimage(req.files.imageetc, 'imageetc', code)
-            }
-        }
-
-        let response = await ggsheet.updateCasingRow(req.body)
-        if (response) {
-            res.render('success')
         } else {
-            res.render('failure', { reason: response })
+            console.log(result)
+            res.sendStatus(500)
         }
-    } else {
-        res.sendStatus('404')
-    }
+    } 
 
 })
 
-app.get('/personal', async (req, res) => {
-    if (req.query['code'] != undefined) {
-        let code = req.query['code'].toString().toUpperCase()
-        let op_inform = await ggsheet.getopbyCode(code)
-        let images_gg = await ggutils.getimages(op_inform.folderID)
-        let slide = await ggutils.getslide(op_inform.folderID)
-        let images_person = await util.getpersonimage(code)
-        console.log(op_inform.headerValues)
-        if (op_inform != null || op_inform != undefined) {
-            res.render('personaldetail', { evidence: op_inform, images: images_gg, image_person: images_person, slide: slide })
-        } else {
-            res.render('notfound', { reason: 'ข้อมูลบางส่วนไม่สมบูรณ์' })
-        }
-    } else {
-        res.render('personalmain')
-    }
+app.post('/basejustify', async (req, res) => {
+    console.log(req.body.rawBase)
+    let result = await utilities.splitBaseMsgForWeb(req.body.rawBase, req.body.opname)
+    console.log(result)
+    res.send(JSON.stringify(result))
 })
 
 app.post('/emergency', async (req, res) => {
@@ -234,7 +200,35 @@ app.post('/importexcel', async (req, res) => {
         console.log('file zero')
         res.sendStatus(500)
     }
+})
 
+app.post('/importgprs', async (req, res) => {
+    const map = {
+        'row': 'no',
+        'Time Stamp': 'timeStamp',
+        'Address': 'address',
+        'name_target': 'targetName',
+        'idcard': 'targetId',
+        'pic': 'targetPic',
+        'address': 'targetAddress'
+    }
+    if (req.files) {
+        try {
+            readXlsxFile(req.files.filestore.tempFilePath, { map }).then(({ rows }) => {
+                rows.forEach(element => {
+                    console.log('Process push target')
+                    utilities.addNewTarget(req.body.opName, element)
+                });
+            })
+            res.sendStatus(200)
+        } catch (err) {
+            console.error(err)
+            res.sendStatus(500)
+        }
+    } else {
+        console.log('file zero')
+        res.sendStatus(500)
+    }
 })
 
 app.post('/loginOp', async (req, res) => {
@@ -256,6 +250,7 @@ app.post('/create-rtdb', async (req, res) => {
         } else if (checkIsDBExist == false) {
             let result = await firebasemodule.setNewRTDB(req.body.opName, req.body.opPass)
             if (result == true) {
+                util.creatlocalfolder(req.body.opName)
                 console.log('create operation success' + req.body.opName + "  passoword : " + req.body.opPass)
                 res.status(200).send({ 'message': 'success' })
             } else {
