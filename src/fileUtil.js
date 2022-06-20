@@ -4,14 +4,25 @@ const folderdata = './data'
 
 module.exports = {
 
-    creatlocalfolder: createlocalFolder = (foldername) => {
-        let folderpath = `./data/${foldername}`
-        fs.mkdirSync(folderpath, { recursive: true }, (err) => {
-            if (err) console.error(err)
-            else {
-                return (true)
-            }
-        })
+    creatlocalfolder: createlocalFolderFunc = (foldername) => {
+        if (fs.existsSync(`data/${foldername}`)) {
+            console.log('found local folder path')
+            return true
+        } else {
+            dirs = [
+                `./data/${foldername}`,
+                `./data/${foldername}/targetImages`,
+                `./data/${foldername}/homeImages`,
+                `./data/${foldername}/cdr`,
+                `./data/${foldername}/etc`
+            ]
+            dirs.forEach(dir => {
+                fs.mkdirSync(dir, { recursive: true }, (err) => {
+                    if (err) console.error(err)
+                })
+            });
+            return true
+        }
     },
 
     createlocalfile: createlocalfile = (filestore, nametag, code) => {
@@ -36,7 +47,7 @@ module.exports = {
         }
     },
 
-    listfileinFolder: listfileinFolder = async(code) => {
+    listfileinFolder: listfileinFolder = async (code) => {
         let folderpath = path.join(folderdata, code)
         let arryfile = []
         let files = await fs.readdirSync(folderpath)
@@ -47,14 +58,14 @@ module.exports = {
         return arryfile
     },
 
-    getcontentfile : getcontentfile = async (code,filename)=>{
-        let filepath = path.join(folderdata,code,filename)
+    getcontentfile: getcontentfile = async (code, filename) => {
+        let filepath = path.join(folderdata, code, filename)
 
-        fs.readFile(filepath, function(err, data) {
+        fs.readFile(filepath, function (err, data) {
             if (data != null) {
                 console.log(data)
                 return data;
-            }else if(err){
+            } else if (err) {
                 console.error(err)
                 return false
             }
@@ -62,19 +73,8 @@ module.exports = {
 
     },
 
-    getpersonimage: getpersonimage = async(code) => {
-        let folderpath = path.join(folderdata, code)
-        let files = fs.readdirSync(folderpath).filter(fn => fn.startsWith('personalimage14'));
-        if (files != null && files.length > 0) {
-            let resp  = path.join(folderpath,files[0])
-            return resp
-        } else {
-            return false
-        }
-    },
-
-    renamefiles: renamefiles = async() => {
-        let folderpath = ('yingjaroen/')
+    renamefiles: renamefiles = async (op_name) => {
+        let folderpath = (`${op_name}/`)
         let files = await fs.readdirSync(folderpath)
         try {
             for (let index = 0; index < files.length; index++) {
@@ -89,9 +89,6 @@ module.exports = {
 
     },
 
-    clearimages: clearimages = () => {
-
-    },
 
     createimage: createimage = (filestore, nametag, code) => {
         try {
