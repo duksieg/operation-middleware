@@ -236,6 +236,19 @@ async function updateMatchingTel(dataObj) {
     }
 }
 
+async function updateEvidence(dataArry,type){
+     dataArry ={'ammo_11':'กระสุน 11mm','ammo_22':'กระสุน 0.22','ammo_357':'กระสุน 0.357','ammo_38':'กระสุน 0.38','ammo_556':'กระสุน 0.556','ammo_762':'กระสุน 0.762','ammo_9':'กระสุน 9mm','ammo_air':'กระสุนอัดอากาศ','ammo_shortgun':'กระสุนลูกซอง'}
+    //dataArry={'ammu_barrel':'ลำกล้อง','ammu_explosive':'วัตถุระเบิด','ammu_magazine':'แม็คกาซีน','ammu_scope':'ชุดเล็ง','ammu_silencer':'ลำกล้องเก็บเสียง','ammu_trigger':'ชุดลั่นไก'} 
+    type ='ammunition'
+    const rtdb_evidence = firebasedb.ref(rtdb,`evidence/${type}`)
+    try{
+        let resultupdate = set(rtdb_evidence,dataArry)
+        console.log(await resultupdate)
+    }catch(err){
+        console.error(err)
+    }
+}
+
 async function gatherPlaces(opName){
     //hard code for opName
     const rtdb_ref = firebasedb.ref(rtdb,`${opName}/points/home`)
@@ -255,7 +268,24 @@ async function gatherPlaces(opName){
     } 
   }
 
+async function getEvidence(){
+    const rtdb_ref = firebasedb.ref(rtdb,`evidence`)
+    let evidences 
+    try {
+        let result =  await firebasedb.get(rtdb_ref)
+        if (result.exists()) {
+            evidences = result.val()
+            return evidences
+        } else {
+            console.log('not found for op ' + opName)
+            return false
+        }
+    } catch (err) {
+        console.error(err);
+        return false
+    } 
+}
 
 
 
-module.exports = { setNewRTDB, addNewTarget, checkIsDBExist, checkLogin, getData, createNewDB, addNewPoint,addNewHome,addManual,gatherPlaces,updateMatchingTel } 
+module.exports = { setNewRTDB, addNewTarget, checkIsDBExist, checkLogin, getData, createNewDB, addNewPoint,addNewHome,addManual,gatherPlaces,updateMatchingTel,getEvidence,updateEvidence} 
