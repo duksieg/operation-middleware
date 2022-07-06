@@ -1,4 +1,5 @@
 const fs = require('fs')
+const { file } = require('googleapis/build/src/apis/file')
 const path = require('path')
 const folderdata = './data'
 
@@ -90,13 +91,15 @@ module.exports = {
     },
 
 
-    createimage: createimage = (filestore, nametag, code) => {
-        try {
-            createlocalfile(filestore, nametag, code)
-        } catch (err) {
-            console.error(`${nametag} upload images failed`)
-            console.error(err)
-        }
+    createTargetImage : createTargetImage = async(filestore,opName,targetID)=>{
+        let fileExtention = path.extname(filestore.name)
+        let fileTmp = filestore.tempFilePath
+        let foldername = path.join(path.dirname(__dirname), `/data/${opName}/targetImages`)
+        let imagename =targetID+fileExtention
+        fs.copyFile(fileTmp, path.join(foldername, imagename), (err) => {
+            if (err) throw err;
+        });
+        return imagename
     }
 
 }

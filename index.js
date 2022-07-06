@@ -12,6 +12,8 @@ const path = require('path')
 const linenoti = require('./src/linenoti')
 const { check } = require('express-validator')
 const { createLogger, format, transports } = require('winston');
+const fileUtil = require('./src/fileUtil')
+const { async } = require('@firebase/util')
 app.use(fileupload({
     useTempFiles: true,
     tempFileDir: '/tmp/'
@@ -50,7 +52,7 @@ function initialload() {
         app.listen(3000, (req, res) => logger.info('app is running on 3000'))
     }
     firebasemodule.getEvidence().then((result) => {
-         evidencesListJson = result
+        evidencesListJson = result
     })
 
 }
@@ -177,7 +179,7 @@ app.get('/reporter/evidence', async (req, res) => {
     logger.info('send evidence to client')
     res.send(evidencesListJson)
 })
-app.post('/reporter/submit',async(req,res)=>{
+app.post('/reporter/submit', async (req, res) => {
     console.log(req.body)
     res.sendStatus(200)
 })
@@ -233,6 +235,48 @@ app.post('/updateevidence', async (req, res) => {
     utilities.updateEvidence(req.body.opName, req.files.filestore, req.body.item)
     res.sendStatus(200)
 })
+app.post('/manage/addwantedlist', async (req, res) => {
+    let imagefilename = await fileUtil.createTargetImage(req.files.targetImage, req.body.opName, req.body.targetID)
+    const wantedObj = {
+        targetName: req.body.targetName == null ? '' : req.body.targetName,
+        targetPic: imagefilename == null ? '' : imagefilename,
+        status:''
+    }
+    let appendedResult = await firebasemodule.addWanted(req.body.opName,wantedObj)
+    if(appendedResult)res.sendStatus(200)
+    else res.sendStatus(500)
+})
+
+app.get('/operation/getimages/:opname/:pointcode',async(req,res)=>{
+    let opName = req.params.opname
+    let pointcode = req.params.pointcode
+    logger.info(`Serving point images : ${pointcode}`)
+    try{
+        let pointfolder = path.join(__dirname,`data/${opName}/${pointcode}`) 
+        logger.info('Looking for '+pointfolder)
+        let pointImages =  fs.readdirSync(pointfolder)
+        res.send(pointImages).status(200)
+    }catch(err){
+        logger.error(err)
+        res.sendStatus(500)
+    }
+})
+app.get('/operation/image/:opname/:pointcode/:filename',async(req,res)=>{
+    let opName = req.params.opname
+    let filename = req.params.filename
+    let pointcode = req.params.pointcode
+    let filepath = path.join(__dirname,`data/${opName}/${pointcode}/${filename}`)
+    logger.info('serving image : '+filepath)
+    res.sendFile(filepath)
+})
+app.get('/operation/:opname/targetimages/:file', async (req, res) => {
+    let opName = req.params.opname
+    let filename = req.params.file
+    let filepath = path.join(__dirname,`data/${opName}/targetImages/${filename}`)
+    logger.info('serving image : '+filepath)
+    res.sendFile(filepath)
+})
+
 
 // app.post('/importexcel', async (req, res) => {
 //     const map = {

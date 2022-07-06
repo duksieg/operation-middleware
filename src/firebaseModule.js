@@ -1,7 +1,26 @@
 const firebase = require('firebase/app');
 const { child, set, ref, push,update } = require('firebase/database');
+const { createLogger, format, transports } = require('winston');
 const firebasedb = require('firebase/database')
-const fs = require('fs')
+const fs = require('fs');
+const logger = createLogger({
+    level: 'info',
+    format: format.simple(),
+    // You can also comment out the line above and uncomment the line below for JSON format
+    // format: format.json(),
+    transports: [
+        new transports.File({
+            filename: 'operationProcess.log',
+            level: 'info'
+        }),
+        new transports.Console({
+            level: 'info',
+            format: format.combine(
+                format.colorize(),
+                format.simple()
+            )
+        })]
+});
 
 const firebaseConfig = {
     apiKey: "AIzaSyCXGu-CH89dMLCWH7tugLG0Vb51wPaoA_c",
@@ -21,6 +40,8 @@ function setNewRTDB(in_name, pass) {
             {
                 property: in_name,
                 password: pass,
+                data:'',
+                wantedlist:'',
                 points: '',
             })
         return true
@@ -47,7 +68,7 @@ async function cleanDB(opName) {
     try {
         await firebasedb.set(firebasedb.ref(rtdb, opName + '/targets'),
             {})
-        console.log('clean db success');
+        logger.info('clean db success');
         return true
     } catch (error) {
         return error
@@ -64,7 +85,7 @@ async function checkIsDBExist(opName) {
             return false
         }
     } catch (err) {
-        console.error(err);
+        logger.error(err);
         return err
     }
 }
@@ -95,7 +116,7 @@ async function getData(opName) {
             return false
         }
     } catch (err) {
-        console.error(err);
+        logger.error(err);
         return err
     }
 }
@@ -111,11 +132,11 @@ async function checkLogin(opName, pass) {
                 return true
             }
         } else {
-            console.log('not found for op ' + opName)
+            logger.info('not found for op ' + opName)
             return false
         }
     } catch (err) {
-        console.error(err);
+        logger.error(err);
         return error
     }
 }
@@ -132,7 +153,7 @@ async function addNewTarget(opName, dataObj) {
             targetId: dataObj.targetId !== undefined ? dataObj.targetId : '',
             address: dataObj.targetAddress !== undefined ? dataObj.targetAddress : ''
         })
-        console.log('Target No :' + dataObj.no + 'push success');
+        logger.info('Target No :' + dataObj.no + 'push success');
     }
 
 }
@@ -144,22 +165,22 @@ async function addNewPoint(opName, dataObj) {
     try {
         let result = await firebasedb.get(child(rtdb_point, dataObj.MSISDN))
         if (result.exists()) {
-            console.log('found tel number' + dataObj.MSISDN)
+            logger.info('found tel number' + dataObj.MSISDN)
             try{
                 let resultpush = await push(rtdb_tel, dataObj)
                 status=true
             }catch(err){
-                console.error(err)
+                logger.error(err)
                 status=false
             }
 
         } else {
-            console.log('not found for tel ' + dataObj.MSISDN)
+            logger.info('not found for tel ' + dataObj.MSISDN)
             firebasedb.push(rtdb_tel, dataObj)
             status = true
         }
     } catch (err) {
-        console.error(err);
+        logger.error(err);
         status = false
     }
     return status
@@ -174,20 +195,20 @@ async function addNewHome(opName, dataObj) {
         if (result.exists()) {
             try{
                 firebasedb.push(rtdb_home, dataObj)
-                console.log('push success')
+                logger.info('push success')
                 status=true
             }catch(err){
-                console.error(err)
+                logger.error(err)
                 status=false
             }
 
         } else {
-            console.log('not found for home ')
+            logger.info('not found for home ')
             firebasedb.push(rtdb_home, dataObj)
             status = true
         }
     } catch (err) {
-        console.error(err);
+        logger.error(err);
         status = false
     }
     return status
@@ -201,23 +222,23 @@ async function addManual(opName, tel,dataObj) {
         let result = await firebasedb.get(child(rtdb_point, tel))
         if (result.exists()) {
             pointObj = result.val()
-            console.log('found tel number' + tel)
+            logger.info('found tel number' + tel)
             try{
                 let resultpush = await push(rtdb_tel, dataObj)
                 status=true
-                console.log(resultpush);
+                logger.info(resultpush);
             }catch(err){
-                console.error(err)
+                logger.error(err)
                 status=false
             }
 
         } else {
-            console.log('not found for tel ' + tel)
+            logger.info('not found for tel ' + tel)
             firebasedb.push(rtdb_tel, dataObj)
             status = true
         }
     } catch (err) {
-        console.error(err);
+        logger.error(err);
         status = false
     }
     return status
@@ -230,9 +251,9 @@ async function updateMatchingTel(dataObj) {
     }
     try {
         let resultupdate = update(rtdb_tel,updateMatching)
-        console.log(await resultupdate)
+        logger.info(await resultupdate)
     } catch (err) {
-        console.error(err);
+        logger.error(err);
     }
 }
 
@@ -243,14 +264,25 @@ async function updateEvidence(dataArry,type){
     const rtdb_evidence = firebasedb.ref(rtdb,`evidence/${type}`)
     try{
         let resultupdate = set(rtdb_evidence,dataArry)
-        console.log(await resultupdate)
+        logger.info(await resultupdate)
     }catch(err){
-        console.error(err)
+        logger.error(err)
+    }
+}
+async function addWanted(opName,objWanted){
+    const rtdb_wantedlist = firebasedb.ref(rtdb,`${opName}/wantedlist`)
+   
+    try{
+        let appendedResult = firebasedb.push(rtdb_wantedlist,objWanted)
+        if(appendedResult){
+            logger.info('appended wanted list successfull')
+        }
+    }catch(err){
+        logger.error(err)
     }
 }
 
 async function gatherPlaces(opName){
-    //hard code for opName
     const rtdb_ref = firebasedb.ref(rtdb,`${opName}/points/home`)
     let allplaces 
     try {
@@ -259,11 +291,11 @@ async function gatherPlaces(opName){
             allplaces = result.val()
             return allplaces
         } else {
-            console.log('not found for op ' + opName)
+            logger.info('not found for op ' + opName)
             return false
         }
     } catch (err) {
-        console.error(err);
+        logger.error(err);
         return false
     } 
   }
@@ -277,15 +309,15 @@ async function getEvidence(){
             evidences = result.val()
             return evidences
         } else {
-            console.log('not found for op ' + opName)
+            logger.info('not found for op ' + opName)
             return false
         }
     } catch (err) {
-        console.error(err);
+        logger.error(err);
         return false
     } 
 }
 
 
 
-module.exports = { setNewRTDB, addNewTarget, checkIsDBExist, checkLogin, getData, createNewDB, addNewPoint,addNewHome,addManual,gatherPlaces,updateMatchingTel,getEvidence,updateEvidence} 
+module.exports = { addWanted,setNewRTDB, addNewTarget, checkIsDBExist, checkLogin, getData, createNewDB, addNewPoint,addNewHome,addManual,gatherPlaces,updateMatchingTel,getEvidence,updateEvidence} 
