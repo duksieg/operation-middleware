@@ -240,6 +240,7 @@ app.post('/manage/addwantedlist', async (req, res) => {
     const wantedObj = {
         targetName: req.body.targetName == null ? '' : req.body.targetName,
         targetPic: imagefilename == null ? '' : imagefilename,
+        allegation:req.body.allegation == null?'':req.body.allegation,
         status:''
     }
     let appendedResult = await firebasemodule.addWanted(req.body.opName,wantedObj)
@@ -266,16 +267,17 @@ app.get('/operation/image/:opname/:pointcode/:filename',async(req,res)=>{
     let filename = req.params.filename
     let pointcode = req.params.pointcode
     let filepath = path.join(__dirname,`data/${opName}/${pointcode}/${filename}`)
-    logger.info('serving image : '+filepath)
+    logger.info('serving file : '+filepath)
     res.sendFile(filepath)
 })
-app.get('/operation/:opname/targetimages/:file', async (req, res) => {
+app.get('/operation/targetimages/:opname/:file', async (req, res) => {
     let opName = req.params.opname
     let filename = req.params.file
     let filepath = path.join(__dirname,`data/${opName}/targetImages/${filename}`)
     logger.info('serving image : '+filepath)
     res.sendFile(filepath)
 })
+
 
 
 // app.post('/importexcel', async (req, res) => {
