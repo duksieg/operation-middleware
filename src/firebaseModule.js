@@ -1,5 +1,5 @@
 const firebase = require('firebase/app');
-const { child, set, ref, push,update } = require('firebase/database');
+const { child, set, ref, push, update } = require('firebase/database');
 const { createLogger, format, transports } = require('winston');
 const firebasedb = require('firebase/database')
 const fs = require('fs');
@@ -40,8 +40,8 @@ function setNewRTDB(in_name, pass) {
             {
                 property: in_name,
                 password: pass,
-                data:'',
-                wantedlist:'',
+                data: '',
+                wantedlist: '',
                 points: '',
             })
         return true
@@ -166,12 +166,12 @@ async function addNewPoint(opName, dataObj) {
         let result = await firebasedb.get(child(rtdb_point, dataObj.MSISDN))
         if (result.exists()) {
             logger.info('found tel number' + dataObj.MSISDN)
-            try{
+            try {
                 let resultpush = await push(rtdb_tel, dataObj)
-                status=true
-            }catch(err){
+                status = true
+            } catch (err) {
                 logger.error(err)
-                status=false
+                status = false
             }
 
         } else {
@@ -191,15 +191,15 @@ async function addNewHome(opName, dataObj) {
     const rtdb_home = firebasedb.ref(rtdb, `${opName}/points/home`)
     let status
     try {
-        let result = await firebasedb.get(child(rtdb_point,'home'))
+        let result = await firebasedb.get(child(rtdb_point, 'home'))
         if (result.exists()) {
-            try{
+            try {
                 firebasedb.push(rtdb_home, dataObj)
                 logger.info('push success')
-                status=true
-            }catch(err){
+                status = true
+            } catch (err) {
                 logger.error(err)
-                status=false
+                status = false
             }
 
         } else {
@@ -214,7 +214,7 @@ async function addNewHome(opName, dataObj) {
     return status
 }
 
-async function addManual(opName, tel,dataObj) {
+async function addManual(opName, tel, dataObj) {
     const rtdb_point = firebasedb.ref(rtdb, `${opName}/points/`)
     const rtdb_tel = firebasedb.ref(rtdb, `${opName}/points/${tel}`)
     let status
@@ -223,13 +223,13 @@ async function addManual(opName, tel,dataObj) {
         if (result.exists()) {
             pointObj = result.val()
             logger.info('found tel number' + tel)
-            try{
+            try {
                 let resultpush = await push(rtdb_tel, dataObj)
-                status=true
+                status = true
                 logger.info(resultpush);
-            }catch(err){
+            } catch (err) {
                 logger.error(err)
-                status=false
+                status = false
             }
 
         } else {
@@ -247,46 +247,46 @@ async function addManual(opName, tel,dataObj) {
 async function updateMatchingTel(dataObj) {
     const rtdb_tel = firebasedb.ref(rtdb, `${dataObj.opName}/points/${dataObj.tel}`)
     const updateMatching = {
-        targetname:dataObj.name
+        targetname: dataObj.name
     }
     try {
-        let resultupdate = update(rtdb_tel,updateMatching)
+        let resultupdate = update(rtdb_tel, updateMatching)
         logger.info(await resultupdate)
     } catch (err) {
         logger.error(err);
     }
 }
 
-async function updateEvidence(dataArry,type){
-     dataArry ={'ammo_11':'กระสุน 11mm','ammo_22':'กระสุน 0.22','ammo_357':'กระสุน 0.357','ammo_38':'กระสุน 0.38','ammo_556':'กระสุน 0.556','ammo_762':'กระสุน 0.762','ammo_9':'กระสุน 9mm','ammo_air':'กระสุนอัดอากาศ','ammo_shortgun':'กระสุนลูกซอง'}
+async function updateEvidence(dataArry, type) {
+    dataArry = { 'ammo_11': 'กระสุน 11mm', 'ammo_22': 'กระสุน 0.22', 'ammo_357': 'กระสุน 0.357', 'ammo_38': 'กระสุน 0.38', 'ammo_556': 'กระสุน 0.556', 'ammo_762': 'กระสุน 0.762', 'ammo_9': 'กระสุน 9mm', 'ammo_air': 'กระสุนอัดอากาศ', 'ammo_shortgun': 'กระสุนลูกซอง' }
     //dataArry={'ammu_barrel':'ลำกล้อง','ammu_explosive':'วัตถุระเบิด','ammu_magazine':'แม็คกาซีน','ammu_scope':'ชุดเล็ง','ammu_silencer':'ลำกล้องเก็บเสียง','ammu_trigger':'ชุดลั่นไก'} 
-    type ='ammunition'
-    const rtdb_evidence = firebasedb.ref(rtdb,`evidence/${type}`)
-    try{
-        let resultupdate = set(rtdb_evidence,dataArry)
+    type = 'ammunition'
+    const rtdb_evidence = firebasedb.ref(rtdb, `evidence/${type}`)
+    try {
+        let resultupdate = set(rtdb_evidence, dataArry)
         logger.info(await resultupdate)
-    }catch(err){
+    } catch (err) {
         logger.error(err)
     }
 }
-async function addWanted(opName,objWanted){
-    const rtdb_wantedlist = firebasedb.ref(rtdb,`${opName}/wantedlist`)
-   
-    try{
-        let appendedResult = firebasedb.push(rtdb_wantedlist,objWanted)
-        if(appendedResult){
+async function addWanted(opName, objWanted) {
+    const rtdb_wantedlist = firebasedb.ref(rtdb, `${opName}/wantedlist`)
+
+    try {
+        let appendedResult = firebasedb.push(rtdb_wantedlist, objWanted)
+        if (appendedResult) {
             logger.info('appended wanted list successfull')
         }
-    }catch(err){
+    } catch (err) {
         logger.error(err)
     }
 }
 
-async function gatherPlaces(opName){
-    const rtdb_ref = firebasedb.ref(rtdb,`${opName}/points/home`)
-    let allplaces 
+async function gatherPlaces(opName) {
+    const rtdb_ref = firebasedb.ref(rtdb, `${opName}/points/home`)
+    let allplaces
     try {
-        let result =  await firebasedb.get(rtdb_ref)
+        let result = await firebasedb.get(rtdb_ref)
         if (result.exists()) {
             allplaces = result.val()
             return allplaces
@@ -297,14 +297,14 @@ async function gatherPlaces(opName){
     } catch (err) {
         logger.error(err);
         return false
-    } 
-  }
+    }
+}
 
-async function getEvidence(){
-    const rtdb_ref = firebasedb.ref(rtdb,`evidence`)
-    let evidences 
+async function getEvidence() {
+    const rtdb_ref = firebasedb.ref(rtdb, `evidence`)
+    let evidences
     try {
-        let result =  await firebasedb.get(rtdb_ref)
+        let result = await firebasedb.get(rtdb_ref)
         if (result.exists()) {
             evidences = result.val()
             return evidences
@@ -315,9 +315,31 @@ async function getEvidence(){
     } catch (err) {
         logger.error(err);
         return false
-    } 
+    }
+}
+ function report(req) {
+    let itemset = req.reportList
+    let opName = req.opName
+    let pointcode = req.pointcode
+    let cleanedItems = []
+    const rtdb_updateItems = firebasedb.ref(rtdb, `${opName}/1vhPSwm7DBMcxEBGIpLTzDgAzUPoqlTj14Yt2hvWvU6Y/data/${pointcode}`)
+    JSON.parse(itemset).forEach(element => {
+        element.name != '' && element.value != '' ? cleanedItems.push(element) :''
+
+    });
+    const objItems = {items:cleanedItems}
+    try {
+        let appendedResult = update(rtdb_updateItems,objItems)
+        if(appendedResult){
+            logger.info('appended report successfull')
+            return cleanedItems
+        }
+    } catch (err) {
+        logger.error(err)
+        return false
+    }
 }
 
 
 
-module.exports = { addWanted,setNewRTDB, addNewTarget, checkIsDBExist, checkLogin, getData, createNewDB, addNewPoint,addNewHome,addManual,gatherPlaces,updateMatchingTel,getEvidence,updateEvidence} 
+module.exports = { report, addWanted, setNewRTDB, addNewTarget, checkIsDBExist, checkLogin, getData, createNewDB, addNewPoint, addNewHome, addManual, gatherPlaces, updateMatchingTel, getEvidence, updateEvidence } 

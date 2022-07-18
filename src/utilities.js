@@ -1,6 +1,7 @@
 
 const res = require('express/lib/response');
 const fs = require('fs');
+const { logger} = require('../src/logConfig')
 
 const lstCollect = /[0-9]{2}\.[0-9]{2}\.[0-9]{4}\s[0-9]{2}:[0-9]{2}:[0-9]{2}/g
 const finddatetime = /[0-9]{2}\s?\w+\s?[0-9]{4}\s+[0-9]{2}?:[0-9]{2}/g
@@ -49,11 +50,11 @@ function parseDateddMMyyyy(rawdatetime) {
         newDatetime = new Date(newDate[2], newDate[1], newDate[0], newTime[0], newTime[1], newTime[2])
         newDatetime = newDatetime.getTime();
     } catch (error) {
-        console.log(error);
-        console.log("Failed parse datetime to millisecond");
+        logger.info(error);
+        logger.info("Failed parse datetime to millisecond");
         newDatetime = ''
     }
-    console.log("Date time : " + newDatetime);
+    logger.info("Date time : " + newDatetime);
     return newDatetime
 }
 
@@ -65,10 +66,10 @@ function parseDateMMddyyyy(rawdatetime) {
         let newTime = splitdatetime[1].split(":")
         newDatetime = new Date(newDate[2], newDate[0], newDate[1], newTime[0], newTime[1], newTime[2])
         newDatetime = newDatetime.getTime();
-        console.log('parse datetime success')
+        logger.info('parse datetime success')
     } catch (error) {
-        console.log(error);
-        console.log("Failed parse datetime to millisecond");
+        logger.info(error);
+        logger.info("Failed parse datetime to millisecond");
         newDatetime = ''
     }
     return newDatetime
@@ -77,17 +78,17 @@ function parseDateMMddyyyy(rawdatetime) {
 function parseDateUTC(rawdatetime) {
     //"03 May 2022 10:15 +07"
     let newDatetime
-    console.log(rawdatetime)
+    logger.info(rawdatetime)
     try {
         let finddateResult = finddate.exec(rawdatetime)
         let findtimeResult = findtime.exec(rawdatetime)
         newDatetime = new Date(finddateResult[0] + "," + findtimeResult[0])
         newDatetime = newDatetime.getTime()
-        console.log('parse datetime success')
+        logger.info('parse datetime success')
 
     } catch (error) {
-        console.log(error);
-        console.log("Failed parse datetime to millisecond");
+        logger.info(error);
+        logger.info("Failed parse datetime to millisecond");
         newDatetime = ''
     }
     return newDatetime
@@ -117,7 +118,7 @@ async function webSetOther(in_obj) {
             let position = in_obj.position.split(",")
             let newPosition = { lat: position[0], lng: position[1] }
             hometemplate.position = newPosition
-            console.log('position justify success')
+            logger.info('position justify success')
         }
         if(in_obj.datepicker !=null || in_obj.datepicker!=''){
             let datetimemilli = new Date(in_obj.datepicker)
@@ -125,8 +126,8 @@ async function webSetOther(in_obj) {
             hometemplate.datetime = datemilli
         }
         let result = firebasemodule.addNewHome(in_obj.opName, hometemplate)
-        console.log('data appened home base')
-        console.log(hometemplate)
+        logger.info('data appened home base')
+        logger.info(hometemplate)
         if (result) {
             return true
         } else false
@@ -137,13 +138,13 @@ async function webSetOther(in_obj) {
 }
 function extractor(element) {
     let extract = element.match(search2value)
-    console.log(extract)
+    logger.info(extract)
     return extract
 }
 function justifyPosition(rawposition) {
     let position
     if (rawposition != null && rawposition.includes(",")) {
-        console.log('Found position key')
+        logger.info('Found position key')
         let getlatlng = rawposition.trim().replace(" ", "").split(",")
         position = { lat: getlatlng[0], lng: getlatlng[1] }
         resultPosition = position
@@ -201,7 +202,7 @@ function setPointObject(splitText) {
 
         //check datetime format ket LastCollectResult
         if (element.match(lstCollect)) {
-            console.log('found last collect format')
+            logger.info('found last collect format')
             objtemplate.LastCollectResult = element.replace("ปิดเครื่อง", "").trim()
             objtemplate.LastCollectMilli = parseDateddMMyyyy(objtemplate.LastCollectResult.replace("ปิดเครื่อง", "").trim())
         }
@@ -215,7 +216,7 @@ function setPointObject(splitText) {
                     objtemplate.LastCollectMilli = parseDate
                 }
             } else {
-                console.log('cannot parse datetime getmsg : ' + element)
+                logger.info('cannot parse datetime getmsg : ' + element)
             }
         }
         if (lat != null && long != null) {
@@ -246,7 +247,7 @@ function setPointObjectFormat2(splitText) {
                     objtemplate.LastCollectMilli = parseDate
                 }
             } else {
-                console.log('cannot parse datetime getmsg : ' + nextline)
+                logger.info('cannot parse datetime getmsg : ' + nextline)
             }
         }
         element.toLowerCase().search("msisdn") != -1 ? objtemplate.MSISDN = nextline : ''
@@ -280,19 +281,19 @@ async function splitBaseMsgForWeb(linemsg, opname) {
                 }
             });
             if (isJumpline) {
-                console.log('processing justify jumpline')
+                logger.info('processing justify jumpline')
                 objdata = setPointObjectFormat2(splitText)
             }
             else {
-                console.log('processing justify normal base')
+                logger.info('processing justify normal base')
                 objdata = setPointObject(splitText)
             }
         }
 
         return objdata
     } catch (err) {
-        console.log('splitline error')
-        console.log(err)
+        logger.info('splitline error')
+        logger.info(err)
     }
 }
 
@@ -311,24 +312,24 @@ async function splitLineBase(linemsg, opname) {
             if (isJumpline) {
                 objdata = setPointObjectFormat2(splitText)
                 result = firebasemodule.addNewPoint(opname, objdata)
-                console.log('data appened jumb line')
+                logger.info('data appened jumb line')
             } else if (linemsg.includes("#bd")) {
                 objdata = setHomeObject(splitText)
                 result = firebasemodule.addNewHome(opname, objdata)
-                console.log('data appened home base')
+                logger.info('data appened home base')
 
             } else {
                 objdata = setPointObject(splitText)
                 result = firebasemodule.addNewPoint(opname, objdata)
-                console.log('data appened tel base')
+                logger.info('data appened tel base')
             }
 
 
         }
         return result
     } catch (err) {
-        console.log('splitline error')
-        console.log(err)
+        logger.info('splitline error')
+        logger.info(err)
     }
 }
 
@@ -361,11 +362,11 @@ async function lineTelDistance(linemsg) {
     let lacdata = splitTelPosition(splitText)
     let { getDistance } = await import('./geolocation.mjs')
     if (lacdata.position != '' && lacdata.tel != '') {
-        console.log('processing line distance')
+        logger.info('processing line distance')
         let subTel = lacdata.tel.substring('2', lacdata.tel.length)
         let allplaces = await firebasemodule.gatherPlaces('op_taiwai')
         let replyMessage = `เบอร์ ${lacdata.tel}`
-        console.log('Processing line distance')
+        logger.info('Processing line distance')
         Object.entries(allplaces).forEach((place) => {
             //finding objdata
             place.forEach(element => {
@@ -386,7 +387,7 @@ async function lineTelDistance(linemsg) {
         })
         return (replyMessage)
     }else{
-        console.log('cannot set position calculation failed')
+        logger.info('cannot set position calculation failed')
     }
 
 }
@@ -405,7 +406,7 @@ function getDateTimeThai() {
 //     let olddate = 1654622401370
 //     var addMlSeconds = (7 * 60) * 60 * 1000;
 //     var newDateObj = new Date(olddate + addMlSeconds)
-//     console.log(Date.parse(newDateObj))
+//     logger.info(Date.parse(newDateObj))
 // }
 
 // convertDate()

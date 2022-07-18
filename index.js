@@ -10,10 +10,8 @@ const firebasemodule = require('./src/firebaseModule')
 const fs = require('fs')
 const path = require('path')
 const linenoti = require('./src/linenoti')
-const { check } = require('express-validator')
-const { createLogger, format, transports } = require('winston');
 const fileUtil = require('./src/fileUtil')
-const { async } = require('@firebase/util')
+const {logger} = require('./src/logConfig')
 app.use(fileupload({
     useTempFiles: true,
     tempFileDir: '/tmp/'
@@ -25,24 +23,6 @@ app.use(express.static('data'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-const logger = createLogger({
-    level: 'info',
-    format: format.simple(),
-    // You can also comment out the line above and uncomment the line below for JSON format
-    // format: format.json(),
-    transports: [
-        new transports.File({
-            filename: 'operationProcess.log',
-            level: 'info'
-        }),
-        new transports.Console({
-            level: 'info',
-            format: format.combine(
-                format.colorize(),
-                format.simple()
-            )
-        })]
-});
 var evidencesListJson = ''
 
 
@@ -180,8 +160,12 @@ app.get('/reporter/evidence', async (req, res) => {
     res.send(evidencesListJson)
 })
 app.post('/reporter/submit', async (req, res) => {
+    let requestObj = req.body
+    logger.info('incoming report : ')
     console.log(req.body)
-    res.sendStatus(200)
+    let updateResult =  firebasemodule.report(requestObj)
+    if(updateResult) res.send(JSON.stringify(updateResult))
+    else res.sendStatus(400)
 })
 app.post('/reporter/emergency', async (req, res) => {
     if (req.body.code != null && req.body.code != undefined) {
@@ -240,41 +224,43 @@ app.post('/manage/addwantedlist', async (req, res) => {
     const wantedObj = {
         targetName: req.body.targetName == null ? '' : req.body.targetName,
         targetPic: imagefilename == null ? '' : imagefilename,
-        allegation:req.body.allegation == null?'':req.body.allegation,
-        status:''
+        allegation: req.body.allegation == null ? '' : req.body.allegation,
+        status: ''
     }
-    let appendedResult = await firebasemodule.addWanted(req.body.opName,wantedObj)
-    if(appendedResult)res.sendStatus(200)
+    let appendedResult = await firebasemodule.addWanted(req.body.opName, wantedObj)
+    if (appendedResult) res.sendStatus(200)
     else res.sendStatus(500)
 })
-
-app.get('/operation/getimages/:opname/:pointcode',async(req,res)=>{
+// serving list of files
+app.get('/operation/getimages/:opname/:pointcode', async (req, res) => {
     let opName = req.params.opname
     let pointcode = req.params.pointcode
     logger.info(`Serving point images : ${pointcode}`)
-    try{
-        let pointfolder = path.join(__dirname,`data/${opName}/${pointcode}`) 
-        logger.info('Looking for '+pointfolder)
-        let pointImages =  fs.readdirSync(pointfolder)
+    try {
+        let pointfolder = path.join(__dirname, `data/${opName}/${pointcode}`)
+        logger.info('Looking for ' + pointfolder)
+        let pointImages = fs.readdirSync(pointfolder)
         res.send(pointImages).status(200)
-    }catch(err){
+    } catch (err) {
         logger.error(err)
         res.sendStatus(500)
     }
 })
-app.get('/operation/image/:opname/:pointcode/:filename',async(req,res)=>{
+//serving file for pdf
+app.get('/operation/image/:opname/:pointcode/:filename', async (req, res) => {
     let opName = req.params.opname
     let filename = req.params.filename
     let pointcode = req.params.pointcode
-    let filepath = path.join(__dirname,`data/${opName}/${pointcode}/${filename}`)
-    logger.info('serving file : '+filepath)
+    let filepath = path.join(__dirname, `data/${opName}/${pointcode}/${filename}`)
+    logger.info('serving file : ' + filepath)
     res.sendFile(filepath)
 })
+//serving wandted list images
 app.get('/operation/targetimages/:opname/:file', async (req, res) => {
     let opName = req.params.opname
     let filename = req.params.file
-    let filepath = path.join(__dirname,`data/${opName}/targetImages/${filename}`)
-    logger.info('serving image : '+filepath)
+    let filepath = path.join(__dirname, `data/${opName}/targetImages/${filename}`)
+    logger.info('serving image : ' + filepath)
     res.sendFile(filepath)
 })
 
