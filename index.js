@@ -159,24 +159,28 @@ app.get('/reporter/evidence', async (req, res) => {
     logger.info('send evidence to client')
     res.send(evidencesListJson)
 })
-app.post('/reporter/submit', async (req, res) => {
+app.post('/reporter/evidence', async (req, res) => {
     let requestObj = req.body
     logger.info('incoming report : ')
-    console.log(req.body)
-    let updateResult =  firebasemodule.report(requestObj)
+    let updateResult =  firebasemodule.reportEvidence(requestObj)
+    if(updateResult) res.send(JSON.stringify(updateResult))
+    else res.sendStatus(400)
+})
+app.post('/reporter/wanted', async (req, res) => {
+    let opname = req.body.opName
+    let wantedobj = req.body.wantedobj
+    let wantedObj  = JSON.parse(wantedobj)
+    let updateResult =  firebasemodule.reportWanted(wantedObj,opname)
     if(updateResult) res.send(JSON.stringify(updateResult))
     else res.sendStatus(400)
 })
 app.post('/reporter/emergency', async (req, res) => {
-    if (req.body.code != null && req.body.code != undefined) {
-        let setsos = ggsheet.setsos(req.body.code)
-        if (setsos) {
-            res.sendStatus(200)
-        } else {
-            res.sendStatus(500)
-        }
+    if (req.body.opName == null && req.body.pointcode == null) {
+      res.sendStatus(500)
     } else {
-        res.sendStatus(500)
+        let setsos =firebasemodule.reportsos(req.body.opName,req.body.pointcode)
+        if(setsos) res.sendStatus(200)
+        else res.sendStatus(500)
     }
 })
 
@@ -225,7 +229,9 @@ app.post('/manage/addwantedlist', async (req, res) => {
         targetName: req.body.targetName == null ? '' : req.body.targetName,
         targetPic: imagefilename == null ? '' : imagefilename,
         allegation: req.body.allegation == null ? '' : req.body.allegation,
-        status: ''
+        status: '',
+        idcard:req.body.targetID == null ? '' : req.body.targetID,
+        pointfound:'',
     }
     let appendedResult = await firebasemodule.addWanted(req.body.opName, wantedObj)
     if (appendedResult) res.sendStatus(200)

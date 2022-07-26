@@ -317,12 +317,12 @@ async function getEvidence() {
         return false
     }
 }
- function report(req) {
+ function reportEvidence(req) {
     let itemset = req.reportList
     let opName = req.opName
     let pointcode = req.pointcode
     let cleanedItems = []
-    const rtdb_updateItems = firebasedb.ref(rtdb, `${opName}/1vhPSwm7DBMcxEBGIpLTzDgAzUPoqlTj14Yt2hvWvU6Y/data/${pointcode}`)
+    const rtdb_updateItems = firebasedb.ref(rtdb, `${opName}/data/${pointcode}`)
     JSON.parse(itemset).forEach(element => {
         element.name != '' && element.value != '' ? cleanedItems.push(element) :''
 
@@ -338,8 +338,37 @@ async function getEvidence() {
         logger.error(err)
         return false
     }
+   
+}
+function reportsos(opName,pointcode){
+    const rtdb_updateItems = firebasedb.ref(rtdb, `${opName}/data/${pointcode}`)
+    const objStat = {stat:'danger'}
+    try {
+        let appendedResult = update(rtdb_updateItems,objStat)
+        if(appendedResult){
+            logger.info('appended report successfull')
+            return true
+        }
+    } catch (err) {
+        logger.error(err)
+        return false
+    }
+}
+function reportWanted(wantedObj,opName){
+    const rtdb_updateItems = firebasedb.ref(rtdb, `${opName}/wantedlist/${wantedObj.wantedKey}`)
+    const objUpdate = {pointfound:wantedObj.pointfound,status:wantedObj.status}
+    try {
+        let appendedResult = update(rtdb_updateItems,objUpdate)
+        if(appendedResult){
+            logger.info('updated wanted successfull from :'+wantedObj.pointfound)
+            return true
+        }
+    } catch (err) {
+        logger.error(err)
+        return false
+    }
 }
 
 
 
-module.exports = { report, addWanted, setNewRTDB, addNewTarget, checkIsDBExist, checkLogin, getData, createNewDB, addNewPoint, addNewHome, addManual, gatherPlaces, updateMatchingTel, getEvidence, updateEvidence } 
+module.exports = { reportWanted,reportsos,reportEvidence, addWanted, setNewRTDB, addNewTarget, checkIsDBExist, checkLogin, getData, createNewDB, addNewPoint, addNewHome, addManual, gatherPlaces, updateMatchingTel, getEvidence, updateEvidence } 

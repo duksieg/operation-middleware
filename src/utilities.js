@@ -402,6 +402,9 @@ function getDateTimeThai() {
     return newDate
 }
 
+function cleansingReporter (){
+    
+}
 // function convertDate(){
 //     let olddate = 1654622401370
 //     var addMlSeconds = (7 * 60) * 60 * 1000;
